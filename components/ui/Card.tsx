@@ -1,14 +1,14 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { Heart, MessageCircle, Share2, MoreHorizontal, Bookmark, Check } from "lucide-react";
-import { likeThought, addComment } from "@/lib/actions/thought.actions";
+import { Heart, MessageCircle, Share2, MoreHorizontal, Bookmark, Check, Mic } from "lucide-react";
+import { likeThought, addComment, addAudioComment } from "@/lib/actions/thought.actions";
 import { useSession } from "next-auth/react";
-import CookingCard from "../worlds/CookingCard";
-import ArtCard from "../worlds/ArtCard";
 import TechCard from "../worlds/TechCard";
-import MusicCard from "../worlds/MusicCard";
-import FitnessCard from "../worlds/FitnessCard";
+import MemeCard from "../worlds/MemeCard";
+import CricketCard from "../worlds/CricketCard";
+import AudioCommentPlayer from "./AudioCommentPlayer";
+import AudioCommentRecorder from "./AudioCommentRecorder";
 
 interface CardProps {
   thought?: any;
@@ -33,26 +33,8 @@ export const Card: React.FC<CardProps> = ({ thought }) => {
 
   const worldLower = (thought.world || "").toLowerCase();
 
-  // Dispatch to specialized world card components
-  if (worldLower === "cooking" || thought.cooking) {
-    return (
-      <div className="w-full relative">
-        <CookingCard post={thought} currentUserId={currentUserId} onShare={handleShare} />
-        {shareToast && <ShareToastNotification />}
-      </div>
-    );
-  }
-
-  if (worldLower === "art" || thought.art) {
-    return (
-      <div className="w-full relative h-full">
-        <ArtCard post={thought} currentUserId={currentUserId} onShare={handleShare} />
-        {shareToast && <ShareToastNotification />}
-      </div>
-    );
-  }
-
-  if (worldLower === "technology" || worldLower === "coding" || thought.tech) {
+  // Dispatch to the 3 specialized world card components
+  if (worldLower === "technology" || worldLower === "coding" || worldLower === "tech" || thought.tech) {
     return (
       <div className="w-full relative">
         <TechCard post={thought} currentUserId={currentUserId} onShare={handleShare} />
@@ -61,19 +43,19 @@ export const Card: React.FC<CardProps> = ({ thought }) => {
     );
   }
 
-  if (worldLower === "music" || thought.music) {
+  if (worldLower === "meme" || thought.meme) {
     return (
       <div className="w-full relative">
-        <MusicCard post={thought} currentUserId={currentUserId} onShare={handleShare} />
+        <MemeCard post={thought} currentUserId={currentUserId} onShare={handleShare} />
         {shareToast && <ShareToastNotification />}
       </div>
     );
   }
 
-  if (worldLower === "fitness" || thought.fitness) {
+  if (worldLower === "cricket" || thought.cricket) {
     return (
       <div className="w-full relative">
-        <FitnessCard post={thought} currentUserId={currentUserId} onShare={handleShare} />
+        <CricketCard post={thought} currentUserId={currentUserId} onShare={handleShare} />
         {shareToast && <ShareToastNotification />}
       </div>
     );
@@ -84,7 +66,7 @@ export const Card: React.FC<CardProps> = ({ thought }) => {
 };
 
 const ShareToastNotification = () => (
-  <div className="fixed bottom-6 right-6 z-50 bg-foreground text-background px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2 text-sm font-medium animate-in fade-in slide-in-from-bottom-2">
+  <div className="fixed bottom-6 right-6 z-50 bg-foreground text-background px-3.5 py-2 rounded-md shadow-md flex items-center gap-2 text-xs font-medium animate-in fade-in slide-from-bottom-2">
     <Check className="w-4 h-4 text-emerald-400" />
     <span>Link copied to clipboard!</span>
   </div>
@@ -102,6 +84,7 @@ const StandardCard: React.FC<{ thought: any; currentUserId: string; onShare: (t:
   const [isCommenting, setIsCommenting] = useState(false);
   const [activeAction, setActiveAction] = useState<string | null>(null);
   const [isSaved, setIsSaved] = useState(false);
+  const [showAudioRecorder, setShowAudioRecorder] = useState(false);
 
   const handleLike = async () => {
     if (!currentUserId || !thought._id) return;
@@ -123,6 +106,7 @@ const StandardCard: React.FC<{ thought: any; currentUserId: string; onShare: (t:
     setIsCommenting(true);
     const newComment = {
       _id: `c-${Date.now()}`,
+      type: "text",
       text: commentText.trim(),
       author: {
         _id: currentUserId,
@@ -142,13 +126,34 @@ const StandardCard: React.FC<{ thought: any; currentUserId: string; onShare: (t:
     }
   };
 
+  const handleAudioCommentReady = async (audioData: any) => {
+    const newComment = {
+      _id: `caudio-${Date.now()}`,
+      type: "audio",
+      audio: audioData,
+      author: {
+        _id: currentUserId,
+        username: "You",
+        photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&h=300&q=80"
+      },
+      createdAt: "Just now"
+    };
+    setComments([...comments, newComment]);
+    setShowAudioRecorder(false);
+    try {
+      await addAudioComment(thought._id, currentUserId, audioData);
+    } catch (e) {
+      console.warn("Audio comment submit:", e);
+    }
+  };
+
   const authorPhoto =
     thought.author?.photo && !thought.author.photo.includes("userr.jpg") && !thought.author.photo.includes("ui-avatars.com")
       ? thought.author.photo
       : `https://api.dicebear.com/7.x/adventurer/svg?seed=${thought.author?.username || "SwitchUser"}`;
 
   return (
-    <article className="w-full bg-card rounded-2xl border border-border shadow-xs hover:shadow-md transition-shadow overflow-hidden">
+    <article className="w-full bg-card rounded-lg border border-border transition-colors overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border">
         <div className="flex items-center gap-3">
@@ -156,19 +161,23 @@ const StandardCard: React.FC<{ thought: any; currentUserId: string; onShare: (t:
             <img
               src={authorPhoto}
               alt={thought.author?.username || "User"}
-              className="w-10 h-10 rounded-full object-cover border border-border hover:ring-2 hover:ring-primary/50 transition-all shrink-0"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(thought.author?.username || "SwitchUser")}`;
+              }}
+              className="w-9 h-9 rounded-full object-cover border border-border hover:ring-2 hover:ring-primary/40 transition-all shrink-0"
             />
           </Link>
           <div>
             <div className="flex items-center gap-2">
               <Link
                 href={`/profile/${thought.author?._id || "view"}`}
-                className="font-semibold text-foreground hover:underline"
+                className="font-semibold text-foreground hover:underline text-sm"
               >
                 {thought.author?.username || "Guest"}
               </Link>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-secondary text-primary border border-border">
-                {thought.world || "Thoughts"}
+              <span className="px-2 py-0.5 rounded text-xs font-semibold bg-secondary text-primary border border-border">
+                {thought.world || "General"}
               </span>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
@@ -179,7 +188,7 @@ const StandardCard: React.FC<{ thought: any; currentUserId: string; onShare: (t:
 
         <button
           onClick={() => setIsSaved(!isSaved)}
-          className={`p-2 rounded-xl transition-all cursor-pointer ${
+          className={`p-2 rounded-md transition-colors cursor-pointer ${
             isSaved
               ? "bg-primary text-primary-foreground"
               : "text-muted-foreground hover:text-foreground hover:bg-secondary"
@@ -191,19 +200,19 @@ const StandardCard: React.FC<{ thought: any; currentUserId: string; onShare: (t:
 
       {/* Body Content */}
       <div className="p-4 sm:p-5 space-y-3">
-        <p className="text-foreground text-base leading-relaxed whitespace-pre-wrap">
+        <p className="text-foreground text-sm sm:text-base leading-relaxed whitespace-pre-wrap">
           {thought.content}
         </p>
 
         {thought.image && (
-          <div className="rounded-xl overflow-hidden bg-secondary max-h-96">
+          <div className="rounded-md overflow-hidden bg-secondary border border-border max-h-96">
             <img src={thought.image} alt="Attachment" className="w-full h-auto object-cover" />
           </div>
         )}
       </div>
 
       {/* Footer Actions */}
-      <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-t border-border bg-card/60 text-muted-foreground text-sm">
+      <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-t border-border bg-card text-muted-foreground text-sm">
         <div className="flex items-center gap-6">
           <button
             onClick={handleLike}
@@ -238,8 +247,8 @@ const StandardCard: React.FC<{ thought: any; currentUserId: string; onShare: (t:
 
       {/* Comments Drawer */}
       {activeAction === "comment" && (
-        <div className="p-4 sm:p-5 border-t border-border bg-secondary/40">
-          <div className="space-y-3 mb-4 max-h-48 overflow-y-auto pr-1">
+        <div className="p-4 sm:p-5 border-t border-border bg-secondary/40 space-y-3">
+          <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
             {comments.length === 0 ? (
               <p className="text-xs text-muted-foreground text-center py-2">
                 No replies yet. Join the conversation!
@@ -247,33 +256,57 @@ const StandardCard: React.FC<{ thought: any; currentUserId: string; onShare: (t:
             ) : (
               comments.map((c: any, i: number) => (
                 <div key={i} className="flex gap-2.5 text-sm">
-                  <span className="font-semibold text-foreground text-xs">
+                  <span className="font-semibold text-foreground text-xs shrink-0">
                     {c.author?.username || "User"}:
                   </span>
-                  <span className="text-muted-foreground text-xs sm:text-sm">
-                    {c.text}
-                  </span>
+                  {c.type === "audio" && c.audio ? (
+                    <div className="flex-1">
+                      <AudioCommentPlayer audio={c.audio} authorName={c.author?.username} />
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground text-xs sm:text-sm">
+                      {c.text}
+                    </span>
+                  )}
                 </div>
               ))
             )}
           </div>
 
-          <form onSubmit={handleCommentSubmit} className="flex gap-2">
-            <input
-              type="text"
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              placeholder="Reply to this thought..."
-              className="flex-1 text-sm bg-card border border-border rounded-full px-4 py-2 text-foreground outline-none focus:border-primary"
+          {showAudioRecorder && (
+            <AudioCommentRecorder
+              onAudioReady={handleAudioCommentReady}
+              onCancel={() => setShowAudioRecorder(false)}
+              maxSeconds={30}
             />
-            <button
-              type="submit"
-              disabled={isCommenting || !commentText.trim()}
-              className="px-4 py-2 rounded-full bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground text-xs font-bold transition-colors cursor-pointer"
-            >
-              Post
-            </button>
-          </form>
+          )}
+
+          {!showAudioRecorder && (
+            <form onSubmit={handleCommentSubmit} className="flex gap-2">
+              <input
+                type="text"
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder="Reply to this thought..."
+                className="flex-1 text-sm bg-card border border-border rounded-full px-4 py-2 text-foreground outline-none focus:border-primary"
+              />
+              <button
+                type="button"
+                onClick={() => setShowAudioRecorder(true)}
+                className="p-2 rounded-full bg-secondary hover:bg-primary/20 text-muted-foreground hover:text-primary border border-border transition-colors cursor-pointer"
+                title="Record 30-second audio note"
+              >
+                <Mic className="w-4 h-4" />
+              </button>
+              <button
+                type="submit"
+                disabled={isCommenting || !commentText.trim()}
+                className="px-4 py-2 rounded-full bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground text-xs font-bold transition-colors cursor-pointer"
+              >
+                Post
+              </button>
+            </form>
+          )}
         </div>
       )}
     </article>

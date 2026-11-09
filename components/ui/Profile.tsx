@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { getUserProfile, updateUserProfilePhoto, updateUserProfile, toggleFollowUser } from "@/lib/actions/user.actions";
 import {
   MapPin, Calendar, Link as LinkIcon, Edit3, Grid, Heart, MessageCircle, User as UserIcon,
-  Bookmark, Check, Plus, Utensils, Palette, Code2, Music2, Dumbbell, Globe2, X, Loader2
+  Bookmark, Check, Plus, Sparkles, Trophy, Code2, Globe2, X, Loader2
 } from "lucide-react";
 import Card from "@/components/ui/Card";
 
@@ -123,9 +123,9 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
   // Filter thoughts by active world tab
   const displayedThoughts = thoughts.filter((t) => {
     if (activeTab === "Posts") return true;
-    if (activeTab === "Cookbooks") return t.world?.toLowerCase() === "cooking" || t.cooking;
-    if (activeTab === "Art Gallery") return t.world?.toLowerCase() === "art" || t.art;
-    if (activeTab === "Code Repos") return t.world?.toLowerCase() === "technology" || t.world?.toLowerCase() === "coding" || t.tech;
+    if (activeTab === "Technology") return t.world?.toLowerCase() === "technology" || t.world?.toLowerCase() === "tech" || t.tech;
+    if (activeTab === "Memes") return t.world?.toLowerCase() === "meme" || t.meme;
+    if (activeTab === "Cricket") return t.world?.toLowerCase() === "cricket" || t.cricket;
     if (activeTab === "Saved") return true;
     return true;
   });
@@ -137,30 +137,26 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
   return (
     <div className="w-full space-y-6">
       {/* Profile Header Card */}
-      <div className="bg-card rounded-2xl border border-border shadow-xs overflow-hidden">
-        {/* Cover Image Banner */}
-        <div className="relative h-44 sm:h-52 w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 overflow-hidden">
-          <img
-            src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80"
-            alt="Cover"
-            className="w-full h-full object-cover opacity-75 mix-blend-overlay"
-          />
+      <div className="bg-card rounded-lg border border-border overflow-hidden">
+        {/* Cover Banner */}
+        <div className="relative h-40 sm:h-48 w-full bg-slate-900 border-b border-border overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:16px_16px] opacity-40" />
         </div>
 
         {/* Profile Info Row */}
         <div className="px-5 sm:px-6 pb-6 pt-0 relative">
-          <div className="flex flex-wrap items-end justify-between -mt-16 sm:-mt-20 gap-4 mb-4">
+          <div className="flex flex-wrap items-end justify-between -mt-14 sm:-mt-16 gap-4 mb-4">
             {/* Avatar */}
             <div className="relative group">
               <img
                 src={userData.photo || "https://api.dicebear.com/7.x/adventurer/svg?seed=SwitchCreator"}
                 alt={userData.username}
-                className="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-4 border-white dark:border-gray-900 shadow-xl object-cover bg-white dark:bg-gray-800"
+                className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 border-card object-cover bg-card shadow-sm"
               />
               {isOwnProfile && (
                 <button
                   onClick={() => setShowAvatarModal(true)}
-                  className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-semibold transition-opacity cursor-pointer"
+                  className="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-medium transition-opacity cursor-pointer"
                 >
                   Change
                 </button>
@@ -173,13 +169,13 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
                 <>
                   <button
                     onClick={() => setShowAvatarModal(true)}
-                    className="px-4 py-2 rounded-xl text-xs font-bold border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                    className="px-3.5 py-1.5 rounded-md text-xs font-medium border border-border bg-card hover:bg-secondary text-foreground transition-colors cursor-pointer"
                   >
                     Change Avatar
                   </button>
                   <button
                     onClick={() => setShowEditModal(true)}
-                    className="px-4 py-2 rounded-xl bg-[#506ffc] hover:bg-blue-600 text-white text-xs font-bold shadow-md shadow-[#506ffc]/25 transition-all cursor-pointer flex items-center gap-1.5"
+                    className="px-3.5 py-1.5 rounded-md bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-medium transition-colors cursor-pointer flex items-center gap-1.5"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
                     <span>Edit Profile</span>
@@ -188,10 +184,10 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
               ) : (
                 <button
                   onClick={handleFollowToggle}
-                  className={`px-5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-xs ${
+                  className={`px-4 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer flex items-center gap-1.5 ${
                     isFollowing
-                      ? "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-red-50 hover:text-red-500"
-                      : "bg-[#506ffc] hover:bg-blue-600 text-white shadow-md shadow-[#506ffc]/25"
+                      ? "bg-secondary text-foreground border border-border hover:bg-destructive/10 hover:text-destructive"
+                      : "bg-primary hover:bg-primary/95 text-primary-foreground"
                   }`}
                 >
                   {isFollowing ? (
@@ -213,36 +209,36 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
           {/* User Bio & Meta */}
           <div className="space-y-3">
             <div>
-              <h2 className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">
                 {userData.username}
               </h2>
-              <p className="text-xs text-gray-400 font-medium">
-                @{userData.username?.toLowerCase() || "switch_creator"} • Switch Multi-World Member
+              <p className="text-xs text-muted-foreground font-mono">
+                @{userData.username?.toLowerCase() || "switch_creator"} • Switch Member
               </p>
             </div>
 
-            <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed max-w-xl">
+            <p className="text-sm text-foreground/90 leading-relaxed max-w-xl">
               {userData.bio || "Exploring specialized interest worlds on Switch."}
             </p>
 
             {/* Location, Website & Join Date */}
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-gray-500 dark:text-gray-400">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
               {userData.location && (
                 <div className="flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5 text-gray-400" />
+                  <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
                   <span>{userData.location}</span>
                 </div>
               )}
               {userData.website && (
                 <div className="flex items-center gap-1">
-                  <LinkIcon className="w-3.5 h-3.5 text-gray-400" />
-                  <a href={userData.website} target="_blank" rel="noreferrer" className="text-[#506ffc] hover:underline font-medium">
+                  <LinkIcon className="w-3.5 h-3.5 text-muted-foreground" />
+                  <a href={userData.website} target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">
                     {userData.website.replace("https://", "")}
                   </a>
                 </div>
               )}
               <div className="flex items-center gap-1">
-                <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
                 <span>Joined {joinDate}</span>
               </div>
             </div>
@@ -250,28 +246,28 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
             {/* Follow Stats */}
             <div className="flex items-center gap-6 pt-2 text-xs">
               <div>
-                <span className="font-bold text-gray-900 dark:text-white mr-1 text-sm">{thoughts.length}</span>
-                <span className="text-gray-500">Thoughts</span>
+                <span className="font-bold text-foreground mr-1 text-sm">{thoughts.length}</span>
+                <span className="text-muted-foreground">Posts</span>
               </div>
               <div>
-                <span className="font-bold text-gray-900 dark:text-white mr-1 text-sm">{followerCount}</span>
-                <span className="text-gray-500">Followers</span>
+                <span className="font-bold text-foreground mr-1 text-sm">{followerCount}</span>
+                <span className="text-muted-foreground">Followers</span>
               </div>
               <div>
-                <span className="font-bold text-gray-900 dark:text-white mr-1 text-sm">{userData.following?.length || 1}</span>
-                <span className="text-gray-500">Following</span>
+                <span className="font-bold text-foreground mr-1 text-sm">{userData.following?.length || 1}</span>
+                <span className="text-muted-foreground">Following</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* World-Specific Profile Navigation Tabs */}
-        <div className="flex border-t border-gray-100 dark:border-gray-800 px-4 overflow-x-auto no-scrollbar gap-2 text-xs font-semibold">
+        <div className="flex border-t border-border px-4 overflow-x-auto no-scrollbar gap-2 text-xs font-medium">
           {[
             { id: "Posts", label: "All Posts", icon: Grid },
-            { id: "Cookbooks", label: "Cookbooks", icon: Utensils },
-            { id: "Art Gallery", label: "Art Gallery", icon: Palette },
-            { id: "Code Repos", label: "Code Repos", icon: Code2 },
+            { id: "Technology", label: "Tech World", icon: Code2 },
+            { id: "Memes", label: "Meme Studio", icon: Sparkles },
+            { id: "Cricket", label: "Cricket Stadium", icon: Trophy },
             { id: "Saved", label: "Saved Items", icon: Bookmark },
           ].map((tab) => {
             const Icon = tab.icon;
@@ -280,10 +276,10 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-3.5 px-3 border-b-2 transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                className={`py-3 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
                   isActive
-                    ? "border-[#506ffc] text-[#506ffc]"
-                    : "border-transparent text-gray-500 hover:text-gray-900 dark:hover:text-white"
+                    ? "border-primary text-primary font-semibold"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -297,11 +293,11 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
       {/* Tab Stream Feed */}
       <div className="space-y-6">
         {displayedThoughts.length === 0 ? (
-          <div className="p-10 text-center bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 space-y-2">
-            <p className="font-bold text-sm text-gray-800 dark:text-gray-200">
+          <div className="p-8 text-center bg-card rounded-lg border border-border space-y-2">
+            <p className="font-semibold text-sm text-foreground">
               No entries in {activeTab} yet
             </p>
-            <p className="text-xs text-gray-500 max-w-sm mx-auto">
+            <p className="text-xs text-muted-foreground max-w-sm mx-auto">
               Content created or saved in this specialized world will be archived here.
             </p>
           </div>
@@ -314,71 +310,71 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
 
       {/* Edit Profile Modal */}
       {showEditModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-2xl p-6 w-full max-w-md space-y-4">
-            <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
-              <h3 className="font-bold text-gray-900 dark:text-white text-base">Edit Profile</h3>
-              <button onClick={() => setShowEditModal(false)} className="text-gray-400 hover:text-gray-600">
-                <X className="w-5 h-5" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-in fade-in duration-150">
+          <div className="bg-card rounded-lg border border-border shadow-xl p-6 w-full max-w-md space-y-4">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <h3 className="font-bold text-foreground text-base">Edit Profile</h3>
+              <button onClick={() => setShowEditModal(false)} className="text-muted-foreground hover:text-foreground">
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleSaveProfile} className="space-y-3.5 text-xs">
               <div>
-                <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Display Name</label>
+                <label className="block font-medium text-foreground mb-1">Display Name</label>
                 <input
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2.5 text-gray-900 dark:text-white outline-none focus:border-[#506ffc]"
+                  className="w-full bg-background border border-input rounded-md p-2 text-foreground outline-none focus:border-primary"
                   required
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Bio</label>
+                <label className="block font-medium text-foreground mb-1">Bio</label>
                 <textarea
                   value={editBio}
                   onChange={(e) => setEditBio(e.target.value)}
                   rows={3}
-                  className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2.5 text-gray-900 dark:text-white outline-none focus:border-[#506ffc]"
+                  className="w-full bg-background border border-input rounded-md p-2 text-foreground outline-none focus:border-primary"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Location</label>
+                <label className="block font-medium text-foreground mb-1">Location</label>
                 <input
                   type="text"
                   value={editLocation}
                   onChange={(e) => setEditLocation(e.target.value)}
-                  placeholder="e.g. Milan, Italy or Cyberspace"
-                  className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2.5 text-gray-900 dark:text-white outline-none focus:border-[#506ffc]"
+                  placeholder="e.g. San Francisco or Remote"
+                  className="w-full bg-background border border-input rounded-md p-2 text-foreground outline-none focus:border-primary"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-gray-700 dark:text-gray-300 mb-1">Website</label>
+                <label className="block font-medium text-foreground mb-1">Website</label>
                 <input
                   type="url"
                   value={editWebsite}
                   onChange={(e) => setEditWebsite(e.target.value)}
                   placeholder="https://..."
-                  className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2.5 text-gray-900 dark:text-white outline-none focus:border-[#506ffc]"
+                  className="w-full bg-background border border-input rounded-md p-2 text-foreground outline-none focus:border-primary"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+              <div className="flex justify-end gap-2 pt-2 border-t border-border">
                 <button
                   type="button"
                   onClick={() => setShowEditModal(false)}
-                  className="px-4 py-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 font-semibold"
+                  className="px-3.5 py-1.5 rounded-md text-muted-foreground hover:bg-secondary font-medium transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSavingProfile}
-                  className="px-5 py-2 rounded-lg bg-[#506ffc] hover:bg-blue-600 text-white font-bold transition-colors cursor-pointer"
+                  className="px-4 py-1.5 rounded-md bg-primary hover:bg-primary/95 text-primary-foreground font-semibold transition-colors cursor-pointer"
                 >
                   {isSavingProfile ? "Saving..." : "Save Changes"}
                 </button>
@@ -390,15 +386,15 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
 
       {/* Avatar Presets Modal */}
       {showAvatarModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-2xl p-6 w-full max-w-lg space-y-4">
-            <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-in fade-in duration-150">
+          <div className="bg-card rounded-lg border border-border shadow-xl p-6 w-full max-w-lg space-y-4">
+            <div className="flex items-center justify-between border-b border-border pb-3">
               <div>
-                <h3 className="font-bold text-gray-900 dark:text-white text-base">Select Avatar Style</h3>
-                <p className="text-xs text-gray-500">Pick an identity tuned for your favorite world</p>
+                <h3 className="font-bold text-foreground text-base">Select Avatar Style</h3>
+                <p className="text-xs text-muted-foreground">Pick an identity tuned for your profile</p>
               </div>
-              <button onClick={() => setShowAvatarModal(false)} className="text-gray-400 hover:text-gray-600">
-                <X className="w-5 h-5" />
+              <button onClick={() => setShowAvatarModal(false)} className="text-muted-foreground hover:text-foreground">
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -407,14 +403,14 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
                 <div
                   key={p.label}
                   onClick={() => handleAvatarSelect(p.url)}
-                  className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200/80 dark:border-gray-700/80 hover:border-[#506ffc] hover:bg-blue-50/40 dark:hover:bg-blue-950/20 text-center cursor-pointer transition-all group"
+                  className="p-3 rounded-md bg-secondary/50 border border-border hover:border-primary text-center cursor-pointer transition-colors group"
                 >
                   <img
                     src={p.url}
                     alt={p.label}
-                    className="w-16 h-16 rounded-full mx-auto object-cover group-hover:scale-105 transition-transform"
+                    className="w-14 h-14 rounded-full mx-auto object-cover group-hover:scale-105 transition-transform"
                   />
-                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-200 mt-2 truncate">
+                  <p className="text-xs font-medium text-foreground mt-2 truncate">
                     {p.label}
                   </p>
                 </div>
@@ -424,7 +420,7 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
             <div className="text-center pt-2">
               <button
                 onClick={() => setShowAvatarModal(false)}
-                className="text-xs text-gray-500 hover:underline"
+                className="text-xs text-muted-foreground hover:underline"
               >
                 Close
               </button>

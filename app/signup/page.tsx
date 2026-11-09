@@ -39,12 +39,12 @@ export default function Signup() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background text-foreground p-4">
-      <div className="w-full max-w-md bg-card rounded-3xl shadow-xl p-8 border border-border space-y-6">
+      <div className="w-full max-w-md bg-card rounded-lg border border-border p-6 sm:p-8 space-y-6">
         {/* Back Link */}
         <div>
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Switch</span>
@@ -52,71 +52,71 @@ export default function Signup() {
         </div>
 
         {/* Brand Header */}
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-1.5">
           <Link href="/" className="inline-flex items-center gap-2.5">
-            <img src="/switch-logo-blue.png" alt="Switch" className="w-10 h-10 rounded-xl shadow-xs" />
-            <span className="font-black text-2xl tracking-tight bg-gradient-to-r from-[#506ffc] to-blue-700 bg-clip-text text-transparent">
+            <img src="/switch-logo-blue.png" alt="Switch" className="w-8 h-8 rounded-md" />
+            <span className="font-extrabold text-xl tracking-tight text-foreground">
               SWITCH
             </span>
           </Link>
-          <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white">Create an Account</h1>
-          <p className="text-xs text-gray-500">One identity across all specialized interest worlds</p>
+          <h1 className="text-xl font-bold text-foreground">Create an Account</h1>
+          <p className="text-xs text-muted-foreground">One identity across all specialized interest worlds</p>
         </div>
 
         {error && (
-          <div className="text-xs text-red-500 text-center font-semibold bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 p-2.5 rounded-xl">
+          <div className="text-xs text-destructive text-center font-semibold bg-destructive/10 border border-destructive/20 p-2.5 rounded-md">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Username</label>
+            <label className="block text-xs font-medium text-foreground mb-1.5">Username</label>
             <input 
               type="text" 
               value={username} 
               onChange={(e) => setUsername(e.target.value)} 
               required 
               placeholder="e.g. ElenaBakes"
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-[#506ffc]/20 focus:border-[#506ffc] outline-none transition" 
+              className="w-full px-3.5 py-2 rounded-md border border-input bg-background text-foreground text-sm focus:border-primary focus:outline-none transition-colors" 
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Email Address</label>
+            <label className="block text-xs font-medium text-foreground mb-1.5">Email Address</label>
             <input 
               type="email" 
               value={email} 
               onChange={(e) => setEmail(e.target.value)} 
               required 
               placeholder="you@domain.com"
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-[#506ffc]/20 focus:border-[#506ffc] outline-none transition" 
+              className="w-full px-3.5 py-2 rounded-md border border-input bg-background text-foreground text-sm focus:border-primary focus:outline-none transition-colors" 
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Password</label>
+            <label className="block text-xs font-medium text-foreground mb-1.5">Password</label>
             <input 
               type="password" 
               value={password} 
               onChange={(e) => setPassword(e.target.value)} 
               required 
               placeholder="••••••••"
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-[#506ffc]/20 focus:border-[#506ffc] outline-none transition" 
+              className="w-full px-3.5 py-2 rounded-md border border-input bg-background text-foreground text-sm focus:border-primary focus:outline-none transition-colors" 
             />
           </div>
 
           <button 
             type="submit" 
             disabled={loading} 
-            className="w-full bg-[#506ffc] hover:bg-blue-600 text-white font-bold rounded-xl py-3 transition-colors flex justify-center items-center shadow-lg shadow-[#506ffc]/25 text-sm cursor-pointer"
+            className="w-full bg-primary hover:bg-primary/95 text-primary-foreground font-semibold rounded-md py-2.5 transition-colors flex justify-center items-center text-sm cursor-pointer"
           >
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Join Switch"}
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Join Switch"}
           </button>
         </form>
 
-        <p className="text-center text-xs text-gray-500">
-          Already have an account? <Link href="/login" className="text-[#506ffc] font-bold hover:underline">Sign in</Link>
+        <p className="text-center text-xs text-muted-foreground">
+          Already have an account? <Link href="/login" className="text-primary font-semibold hover:underline">Sign in</Link>
         </p>
       </div>
     </div>

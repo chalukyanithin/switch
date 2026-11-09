@@ -8,7 +8,7 @@ import Card from "@/components/ui/Card";
 import { INITIAL_SWITCH_POSTS } from "@/lib/data/worldsData";
 
 const POPULAR_QUERIES = [
-  "Sourdough", "Rust", "Oil Linen", "Analog Tape", "Calisthenics", "Carbonara", "SolarCache"
+  "Rust", "WebAssembly", "Meme Template", "Cricket Live", "BBL", "V8 Engine", "Compiler"
 ];
 
 export default function SearchPage() {
@@ -63,25 +63,25 @@ export default function SearchPage() {
     <div className="w-full space-y-6">
       {/* Search Header */}
       <div className="space-y-1">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
           Universal Search
         </h1>
-        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-          Find recipes, artists, code repositories, audio sessions, and creators.
+        <p className="text-xs sm:text-sm text-muted-foreground">
+          Find code repositories, meme templates, match updates, and creators across Switch.
         </p>
       </div>
 
       {/* Search Bar Input */}
       <div className="relative group">
-        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#506ffc] transition-colors">
-          <Search className="w-5 h-5" />
+        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-primary transition-colors">
+          <Search className="w-4 h-4" />
         </div>
         <input
           type="text"
           value={query}
           onChange={handleInputChange}
-          placeholder="Search recipes, code, mediums, creators..."
-          className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-100 text-sm sm:text-base rounded-2xl py-3.5 pl-11 pr-10 shadow-xs outline-none focus:border-[#506ffc] focus:ring-2 focus:ring-[#506ffc]/20 transition-all placeholder:text-gray-400"
+          placeholder="Search code, memes, cricket scores, creators..."
+          className="w-full bg-card border border-border text-foreground text-sm rounded-md py-2.5 pl-10 pr-10 outline-none focus:border-primary transition-colors placeholder:text-muted-foreground"
         />
         {query && (
           <button
@@ -89,7 +89,7 @@ export default function SearchPage() {
               setQuery("");
               setResults(null);
             }}
-            className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -98,12 +98,12 @@ export default function SearchPage() {
 
       {/* Suggested Search Chips */}
       <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
-        <span className="text-xs font-semibold text-gray-400 whitespace-nowrap mr-1">Trending:</span>
+        <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap mr-1">Trending:</span>
         {POPULAR_QUERIES.map((term) => (
           <button
             key={term}
             onClick={() => handleChipClick(term)}
-            className="px-3 py-1 rounded-full text-xs font-medium bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 hover:border-[#506ffc] hover:text-[#506ffc] transition-all whitespace-nowrap cursor-pointer shadow-xs"
+            className="px-2.5 py-1 rounded-md text-xs font-medium bg-secondary border border-border text-foreground hover:border-primary/50 transition-colors whitespace-nowrap cursor-pointer"
           >
             {term}
           </button>
@@ -112,28 +112,28 @@ export default function SearchPage() {
 
       {/* Filter Tabs & World Filter */}
       {results && (
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 dark:border-gray-800 pb-3">
-          <div className="flex gap-2 text-xs font-semibold">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+          <div className="flex gap-1.5 text-xs font-semibold">
             <button
               onClick={() => setActiveTab("all")}
-              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                activeTab === "all" ? "bg-[#506ffc] text-white" : "text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+              className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
+                activeTab === "all" ? "bg-primary text-primary-foreground font-bold" : "text-muted-foreground hover:bg-secondary"
               }`}
             >
               All Results ({results.users.length + filteredThoughts.length})
             </button>
             <button
               onClick={() => setActiveTab("thoughts")}
-              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                activeTab === "thoughts" ? "bg-[#506ffc] text-white" : "text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+              className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
+                activeTab === "thoughts" ? "bg-primary text-primary-foreground font-bold" : "text-muted-foreground hover:bg-secondary"
               }`}
             >
               Thoughts ({filteredThoughts.length})
             </button>
             <button
               onClick={() => setActiveTab("people")}
-              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                activeTab === "people" ? "bg-[#506ffc] text-white" : "text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+              className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
+                activeTab === "people" ? "bg-primary text-primary-foreground font-bold" : "text-muted-foreground hover:bg-secondary"
               }`}
             >
               People ({results.users.length})
@@ -141,18 +141,16 @@ export default function SearchPage() {
           </div>
 
           <div className="flex items-center gap-1.5 text-xs">
-            <span className="text-gray-400">World:</span>
+            <span className="text-muted-foreground">World:</span>
             <select
               value={selectedWorld}
               onChange={(e) => setSelectedWorld(e.target.value)}
-              className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg px-2.5 py-1 text-xs font-semibold text-gray-800 dark:text-gray-200"
+              className="bg-card border border-border rounded-md px-2.5 py-1 text-xs font-semibold text-foreground outline-none cursor-pointer"
             >
               <option value="All">All Worlds</option>
-              <option value="Cooking">Cooking</option>
-              <option value="Art">Art</option>
               <option value="Technology">Technology</option>
-              <option value="Music">Music</option>
-              <option value="Fitness">Fitness</option>
+              <option value="Cricket">Cricket</option>
+              <option value="Meme">Meme</option>
             </select>
           </div>
         </div>
@@ -162,19 +160,19 @@ export default function SearchPage() {
       <div>
         {isSearching ? (
           <div className="flex flex-col items-center justify-center py-20 space-y-3">
-            <Loader2 className="w-8 h-8 animate-spin text-[#506ffc]" />
-            <p className="text-sm text-gray-400">Searching through Switch worlds...</p>
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">Searching through Switch worlds...</p>
           </div>
         ) : !query.trim() ? (
-          <div className="p-10 text-center bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 space-y-3">
-            <div className="w-12 h-12 mx-auto rounded-full bg-blue-50 dark:bg-blue-950/40 text-[#506ffc] flex items-center justify-center">
-              <Search className="w-6 h-6" />
+          <div className="p-8 text-center bg-card rounded-lg border border-border space-y-3">
+            <div className="w-10 h-10 mx-auto rounded-full bg-primary/10 text-primary flex items-center justify-center">
+              <Search className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-base text-gray-900 dark:text-white">
+            <h3 className="font-bold text-base text-foreground">
               Search by Interest, Topic or Creator
             </h3>
-            <p className="text-xs text-gray-500 max-w-sm mx-auto">
-              Type keywords like &quot;Focaccia&quot;, &quot;Tokio&quot;, &quot;Atmospheric Fog&quot;, or &quot;Elena Vance&quot; to discover specialized content.
+            <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+              Type keywords like &quot;Rust&quot;, &quot;Compiler&quot;, &quot;Remix&quot;, or &quot;Scoreboard&quot; to discover specialized content.
             </p>
           </div>
         ) : results ? (
@@ -182,8 +180,8 @@ export default function SearchPage() {
             {/* Creators Section */}
             {(activeTab === "all" || activeTab === "people") && results.users.length > 0 && (
               <div className="space-y-3">
-                <h3 className="font-bold text-xs uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
-                  <Users className="w-4 h-4 text-[#506ffc]" />
+                <h3 className="font-bold text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Users className="w-4 h-4 text-primary" />
                   <span>People ({results.users.length})</span>
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -191,18 +189,22 @@ export default function SearchPage() {
                     <Link
                       key={u._id}
                       href={`/profile/${u._id}`}
-                      className="flex items-center gap-3 p-3.5 rounded-xl bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 hover:border-[#506ffc] transition-all group shadow-xs"
+                      className="flex items-center gap-3 p-3.5 rounded-xl bg-card border border-border hover:border-primary transition-all group shadow-xs"
                     >
                       <img
-                        src={u.photo || "https://api.dicebear.com/7.x/adventurer/svg?seed=User"}
+                        src={u.photo || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(u.username || "User")}`}
                         alt={u.username}
-                        className="w-11 h-11 rounded-full object-cover border border-gray-200 dark:border-gray-700 group-hover:scale-105 transition-transform"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(u.username || "User")}`;
+                        }}
+                        className="w-11 h-11 rounded-full object-cover border border-border group-hover:scale-105 transition-transform shrink-0"
                       />
                       <div className="flex-1 overflow-hidden">
-                        <p className="font-bold text-sm text-gray-900 dark:text-gray-100 group-hover:text-[#506ffc] transition-colors truncate">
+                        <p className="font-bold text-sm text-foreground group-hover:text-primary transition-colors truncate">
                           {u.username}
                         </p>
-                        <p className="text-xs text-gray-500 truncate">
+                        <p className="text-xs text-muted-foreground truncate">
                           {u.bio || "Switch Creator"}
                         </p>
                       </div>
@@ -215,8 +217,8 @@ export default function SearchPage() {
             {/* Thoughts Section */}
             {(activeTab === "all" || activeTab === "thoughts") && filteredThoughts.length > 0 && (
               <div className="space-y-3">
-                <h3 className="font-bold text-xs uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
-                  <FileText className="w-4 h-4 text-[#506ffc]" />
+                <h3 className="font-bold text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <FileText className="w-4 h-4 text-primary" />
                   <span>Thoughts & World Posts ({filteredThoughts.length})</span>
                 </h3>
                 <div className="space-y-6">
@@ -228,12 +230,12 @@ export default function SearchPage() {
             )}
 
             {results.users.length === 0 && filteredThoughts.length === 0 && (
-              <div className="p-10 text-center bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 space-y-2">
-                <p className="text-base font-semibold text-gray-800 dark:text-gray-200">
+              <div className="p-10 text-center bg-card rounded-2xl border border-border space-y-2">
+                <p className="text-base font-semibold text-foreground">
                   No exact matches found for &quot;{query}&quot;
                 </p>
-                <p className="text-xs text-gray-500">
-                  Try checking for typos or searching a broader topic like &quot;Cooking&quot;, &quot;Code&quot;, or &quot;Art&quot;.
+                <p className="text-xs text-muted-foreground">
+                  Try checking for typos or searching a broader topic like &quot;Technology&quot;, &quot;Meme&quot;, or &quot;Cricket&quot;.
                 </p>
               </div>
             )}

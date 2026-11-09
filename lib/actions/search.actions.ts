@@ -39,18 +39,16 @@ export async function globalSearch(query: string) {
     post.content.toLowerCase().includes(cleanQuery) ||
     post.world.toLowerCase().includes(cleanQuery) ||
     post.author.username.toLowerCase().includes(cleanQuery) ||
-    (post.cooking && post.cooking.ingredients.some(i => i.toLowerCase().includes(cleanQuery))) ||
-    (post.tech && post.tech.techStack.some(s => s.toLowerCase().includes(cleanQuery))) ||
-    (post.art && (post.art.medium.toLowerCase().includes(cleanQuery) || post.art.style.toLowerCase().includes(cleanQuery))) ||
-    (post.music && (post.music.genre.toLowerCase().includes(cleanQuery) || post.music.trackTitle.toLowerCase().includes(cleanQuery)))
+    (post.tech && (post.tech.repoName.toLowerCase().includes(cleanQuery) || post.tech.techStack.some(s => s.toLowerCase().includes(cleanQuery)))) ||
+    (post.meme && (post.meme.caption.toLowerCase().includes(cleanQuery) || post.meme.layers.some(l => l.text.toLowerCase().includes(cleanQuery)))) ||
+    (post.cricket && (post.cricket.matchTitle.toLowerCase().includes(cleanQuery) || post.cricket.battingTeam.toLowerCase().includes(cleanQuery) || post.cricket.bowlingTeam.toLowerCase().includes(cleanQuery)))
   );
 
   const fallbackUsers = [
-    { _id: "user-elena", username: "Elena_Vance", photo: "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=300&h=300&q=80", bio: "Artisanal Baker & Culinary Explorer in Milan & Tokyo." },
-    { _id: "user-maya", username: "Maya_Lin", photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&h=300&q=80", bio: "Contemporary oil painter exploring light scattering & coastal mists." },
-    { _id: "user-sarah", username: "Sarah_Chen", photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&h=300&q=80", bio: "Distributed systems architect. Core contributor to Tokio & Rust." },
-    { _id: "user-jordan", username: "Jordan_Vance", photo: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=300&h=300&q=80", bio: "Modular synthesist & film composer. Analog reel tape sessions." },
-    { _id: "user-marcus", username: "Coach_Marcus", photo: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&h=300&q=80", bio: "Gymnastic strength coach & functional movement specialist." },
+    { _id: "user-sarah", username: "Sarah_Chen", photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&h=300&q=80", bio: "Distributed systems architect. Tokio & Rust compiler contributor." },
+    { _id: "user-doge", username: "DogeKing_420", photo: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=300&h=300&q=80", bio: "Chief Meme Architect at Switch. Remixing reality since 2018." },
+    { _id: "user-cricket", username: "CricketDaily_HQ", photo: "https://images.unsplash.com/photo-1531415074868-036b1c57e329?auto=format&fit=crop&w=300&h=300&q=80", bio: "Ball-by-ball coverage, Hawk-Eye analytics, and post-match dugout reactions." },
+    { _id: "user-alex", username: "Alex_Rivera", photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&h=300&q=80", bio: "V8 internals explorer & high-throughput distributed actor systems." },
   ].filter(u => u.username.toLowerCase().includes(cleanQuery) || u.bio.toLowerCase().includes(cleanQuery));
 
   // Merge unique

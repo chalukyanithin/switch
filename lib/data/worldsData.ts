@@ -6,67 +6,79 @@ export interface PostAuthor {
   verified?: boolean;
 }
 
+export interface AudioCommentData {
+  mediaUrl: string;
+  durationMs: number; // max 30000ms
+  waveform: number[]; // normalized values 0.0 - 1.0
+  mimeType?: string;
+}
+
 export interface PostComment {
   _id?: string;
-  text: string;
+  type?: 'text' | 'audio';
+  text?: string;
+  audio?: AudioCommentData;
   author: PostAuthor;
   createdAt: string;
 }
 
-export interface CookingMetadata {
-  prepTime: string;
-  cookTime: string;
-  difficulty: "Easy" | "Intermediate" | "Advanced";
-  servings: string;
-  ingredients: string[];
-  instructions: string[];
-}
-
-export interface ArtMetadata {
-  medium: string;
-  style: string;
-  dimensions?: string;
-  year?: string;
-  palette?: string[];
-  processSteps?: string[];
-}
-
 export interface TechMetadata {
   techStack: string[];
-  githubUrl?: string;
-  demoUrl?: string;
+  topics?: string[]; // e.g. ["Systems & OS", "Linux", "Kernel"]
+  githubUrl?: string; // Optional attachment
+  demoUrl?: string; // Optional attachment
+  docUrl?: string; // Optional attachment
+  docAttachment?: {
+    category: string;
+    title: string;
+    url: string;
+  };
   codeSnippet?: string;
+  language?: string;
+  isExecutable?: boolean;
+  benchmarkOps?: string;
+  postType?: "explanation" | "project" | "question" | "discussion";
 }
 
-export interface MusicMetadata {
-  trackTitle: string;
-  duration: string;
-  genre: string;
-  bpm: number;
-  key: string;
-  instruments?: string[];
+export interface MemeLayer {
+  id: string;
+  text: string;
+  x: number;
+  y: number;
+  fontSize: number;
+  fontFamily: string;
+  fillColor: string;
+  strokeColor: string;
+  strokeWidth: number;
+  rotation: number;
+  isAllCaps: boolean;
 }
 
-export interface FitnessExercise {
-  name: string;
-  sets: string;
-  reps: string;
-  rest: string;
+export interface MemeMetadata {
+  isTemplate: boolean;
+  parentMemeId?: string;
+  originalAuthor?: string;
+  remixCount?: number;
+  templateImageUrl: string;
+  canvasWidth?: number;
+  canvasHeight?: number;
+  layers?: MemeLayer[];
 }
 
-export interface FitnessMetadata {
-  routineType: string;
-  duration: string;
-  intensity: "Low" | "Moderate" | "High" | "Extreme";
-  targetMuscles: string[];
-  caloriesBurned: string;
-  exercises: FitnessExercise[];
+export interface CricketMetadata {
+  matchTitle?: string;
+  teams?: { home: string; away: string };
+  scoreSnippet?: string;
+  matchFormat?: "Test" | "T20" | "ODI" | "General";
+  venue?: string;
+  currentOver?: string;
+  target?: string;
 }
 
 export interface SwitchPost {
   _id: string;
   content: string;
-  world: "Cooking" | "Art" | "Technology" | "Music" | "Fitness" | "Thoughts" | string;
+  world: "Technology" | "Meme" | "Cricket" | "Thoughts" | string;
   image?: string;
   author: PostAuthor;
   createdAt: string;
@@ -75,297 +87,564 @@ export interface SwitchPost {
   sharesCount?: number;
   saved?: boolean;
   // World-specific specialized data
-  cooking?: CookingMetadata;
-  art?: ArtMetadata;
   tech?: TechMetadata;
-  music?: MusicMetadata;
-  fitness?: FitnessMetadata;
+  meme?: MemeMetadata;
+  cricket?: CricketMetadata;
 }
 
 export const INITIAL_SWITCH_POSTS: SwitchPost[] = [
-  // 1. Cooking World
+  // 0. Technology World - Copy-on-Write during fork() (Screenshot Feature Post)
   {
-    _id: "cook-1",
-    world: "Cooking",
+    _id: "tech-cow-fork",
+    world: "Technology",
     author: {
-      _id: "user-elena",
-      username: "Elena_Vance",
-      photo: "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=300&h=300&q=80",
-      bio: "Pastry chef & artisanal bread baker. Milan & Tokyo.",
-      verified: true
-    },
-    content: "Golden Rosemary & Sea Salt Focaccia. The hydration sits at 82% with a 36-hour cold ferment in the olive oil bath. Listen to that blistered crust crackle as it comes out of the hearth!",
-    image: "https://images.unsplash.com/photo-1589367920969-ab8e050bbb04?auto=format&fit=crop&w=1200&q=80",
-    createdAt: new Date(Date.now() - 1000 * 60 * 35).toISOString(),
-    likes: ["user-elena", "user-maya", "user-sarah"],
-    comments: [
-      {
-        _id: "c-c1",
-        text: "The crumb structure on this is absolute perfection!",
-        author: { _id: "user-marco", username: "Marco_Rossi", photo: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&h=300&q=80" },
-        createdAt: "20m ago"
-      },
-      {
-        _id: "c-c2",
-        text: "Added to my Sunday baking schedule. What flour brand did you use?",
-        author: { _id: "user-maya", username: "Maya_Lin", photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&h=300&q=80" },
-        createdAt: "10m ago"
-      }
-    ],
-    cooking: {
-      prepTime: "25 mins",
-      cookTime: "30 mins",
-      difficulty: "Intermediate",
-      servings: "6-8 portions",
-      ingredients: [
-        "500g Tipo 00 or Bread Flour (13% protein)",
-        "410ml Lukewarm filtered water (82% hydration)",
-        "7g Active dry yeast",
-        "10g Fine Mediterranean sea salt",
-        "60ml Extra virgin cold-pressed olive oil",
-        "Fresh rosemary sprigs & flaky Maldon salt"
-      ],
-      instructions: [
-        "Whisk flour, water, and bloomed yeast into a shaggy mass; autolyse for 30 minutes.",
-        "Fold in fine sea salt and 20ml olive oil. Perform 4 coil-folds spaced 25 mins apart.",
-        "Cover tightly and slow-ferment in refrigerator for 36 hours.",
-        "Transfer onto an oiled baking sheet; let proof at room temp until bubbly (approx. 2 hours).",
-        "Dimple deep pockets with olive-oiled fingertips, tuck fresh rosemary sprigs, shower with flaky salt.",
-        "Bake in a preheated 225°C (435°F) oven for 26-28 minutes until blistered and golden."
-      ]
-    }
-  },
-  // 2. Art World
-  {
-    _id: "art-1",
-    world: "Art",
-    author: {
-      _id: "user-maya",
-      username: "Maya_Lin",
+      _id: "user-systems-eng",
+      username: "Systems Engineer",
       photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&h=300&q=80",
-      bio: "Visual artist exploring light scattering and mist in oil on linen.",
-      verified: true
+      bio: "Operating Systems",
+      verified: true,
     },
-    content: "Atmospheric Reverie #12 — 120 x 90 cm, Oil on Belgian Linen.\n\nExploring how warm light dissolves into dense maritime morning fog. Built over three months in 14 translucent glaze layers.",
-    image: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1200&q=80",
+    content: "Why does Linux use copy-on-write during fork()?\n\nI was exploring how process creation works internally. The interesting part is that memory isn't immediately duplicated, which saves a lot of resources. Instead, both parent and child processes share the same physical pages marked as read-only. Only when either process attempts to write to a page does the MMU trigger a page fault, prompting the kernel to allocate a fresh copy for that process.",
     createdAt: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
-    likes: ["user-elena", "user-kenji", "user-jordan", "user-alex"],
+    likes: Array(124).fill("like-user"),
+    sharesCount: 18,
+    comments: Array(32).fill({
+      _id: "c-cow",
+      author: {
+        _id: "user-alex",
+        username: "alex_dev",
+        photo: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&h=300&q=80",
+      },
+      text: "Brilliant explanation of MMU page fault trapping during COW!",
+      createdAt: "1 hour ago",
+    }),
+    tech: {
+      techStack: ["Linux", "Operating Systems", "Memory Management", "C"],
+      topics: ["Systems & OS", "Software"],
+      docAttachment: {
+        category: "LINUX • MEMORY MANAGEMENT",
+        title: "Copy-on-write explained",
+        url: "https://www.kernel.org/doc/html/latest/admin-guide/mm/concepts.html",
+      },
+      postType: "explanation",
+    },
+  },
+
+  // 0b. Technology World - What are you building this weekend?
+  {
+    _id: "tech-weekend-build",
+    world: "Technology",
+    author: {
+      _id: "user-dev-general",
+      username: "Developer",
+      photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&h=300&q=80",
+      bio: "Full Stack & Distributed",
+      verified: false,
+    },
+    content: "What are you building this weekend?\n\nShare your side projects, experiments and open-source contributions with the Tech World community.",
+    createdAt: new Date(Date.now() - 1000 * 60 * 240).toISOString(),
+    likes: Array(45).fill("like-user"),
+    sharesCount: 9,
     comments: [
       {
-        _id: "c-a1",
-        text: "The depth in that upper right corner is breathtaking. Looks like Turner re-imagined.",
-        author: { _id: "user-kenji", username: "Kenji_Sato", photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&h=300&q=80" },
-        createdAt: "1h ago"
-      }
+        _id: "c-build-1",
+        author: {
+          _id: "user-sarah",
+          username: "sarah_chen",
+          photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&h=300&q=80",
+        },
+        text: "Building an audio packet parser in Rust with zero heap allocations!",
+        createdAt: "2 hours ago",
+      },
     ],
-    art: {
-      medium: "Oil on Belgian Linen",
-      style: "Atmospheric Impressionism",
-      dimensions: "120 × 90 cm",
-      year: "2026",
-      palette: ["#1B263B", "#415A77", "#778DA9", "#E0E1DD", "#DDA15E"],
-      processSteps: [
-        "Toned linen ground with warm raw umber wash",
-        "Broad value massing using heavy bristle filberts",
-        "Layering 14 stand-oil glazes with 72h drying between each",
-        "Dry-brush scumbling across horizon highlights"
-      ]
-    }
+    tech: {
+      techStack: ["Open Source", "Side Projects", "Community"],
+      topics: ["Software", "Systems & OS"],
+      postType: "discussion",
+    },
   },
-  // 3. Technology World
+
+  // 1. Technology World - Lock-Free Buffer
   {
     _id: "tech-1",
     world: "Technology",
     author: {
-      _id: "user-sarah",
-      username: "Sarah_Chen",
-      photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&h=300&q=80",
-      bio: "Systems architect. Distributed consensus, Rust & real-time protocols.",
+      _id: "user-alex",
+      username: "alex_dev",
+      photo: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&h=300&q=80",
+      bio: "Systems architect building resilient micro-runtimes.",
       verified: true
     },
-    content: "Shipped SolarCache v0.8: an open-source, lock-free distributed cache written in Rust. Replaced synchronous mutex locks with sharded lock-free ring buffers, yielding 4.2x throughput under heavy concurrent write loads.",
-    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80",
-    createdAt: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
-    likes: ["user-alex", "user-sarah", "user-elena"],
+    content: "Designed a lock-free ring buffer algorithm for low-latency audio packet processing. Benchmarking results show 1.4M ops/sec with zero memory allocations in the hot loop. Click 'Run Code' below to test the execution sandbox live!",
+    createdAt: new Date(Date.now() - 1000 * 60 * 25).toISOString(),
+    likes: ["user-dan", "user-sarah"],
     comments: [
       {
-        _id: "c-t1",
-        text: "Benchmarked this on our cluster today. Latency p99 dropped from 14ms down to 1.8ms! Super clean code.",
-        author: { _id: "user-alex", username: "Alex_Rivera", photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&h=300&q=80" },
-        createdAt: "2h ago"
+        _id: "c-tech-audio",
+        type: "audio",
+        audio: {
+          mediaUrl: "https://actions.google.com/sounds/v1/crowds/battle_crowd_celebrate_staged.ogg",
+          durationMs: 12500,
+          waveform: [0.1, 0.4, 0.8, 0.9, 0.7, 0.5, 0.8, 0.95, 0.6, 0.3, 0.5],
+          mimeType: "audio/ogg",
+        },
+        author: {
+          _id: "user-sarah",
+          username: "sarah_chen",
+          photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&h=300&q=80"
+        },
+        createdAt: "15 mins ago"
       }
     ],
     tech: {
-      techStack: ["Rust", "Tokio", "Lock-free Atomics", "Distributed Raft", "SIMD"],
-      githubUrl: "https://github.com/switch-lab/solarcache",
-      demoUrl: "https://solarcache.switch.dev",
-      codeSnippet: `pub async fn handle_stream<T: AsyncRead + AsyncWrite + Unpin>(
-    mut stream: T,
-    cache: Arc<LockFreeRingBuffer>
-) -> Result<(), NetworkError> {
-    let (mut rx, mut tx) = stream.split();
-    while let Some(cmd) = rx.decode_next().await? {
-        let resp = match cmd {
-            Command::Get(key) => cache.fast_read(&key),
-            Command::Set(k, v, ttl) => cache.commit_epoch(k, v, ttl).await,
-        };
-        tx.send_fast(resp).await?;
+      techStack: ["TypeScript", "Algorithms", "Concurrency", "WebAudio"],
+      topics: ["Systems & OS", "Software", "Networking"],
+      githubUrl: "https://github.com/switch-social/audio-ring-buffer",
+      demoUrl: "https://demo.switch.social/ring-buffer",
+      language: "javascript",
+      isExecutable: true,
+      postType: "project",
+      benchmarkOps: "1.4M ops/sec",
+      codeSnippet: `// Lock-Free Ring Buffer Benchmark Simulator
+function simulateBufferOperations(capacity, iterations) {
+  const buffer = new Float32Array(capacity);
+  let head = 0, tail = 0;
+  const start = performance.now();
+  
+  for (let i = 0; i < iterations; i++) {
+    // Write sample
+    buffer[head % capacity] = Math.sin(i * 0.05);
+    head++;
+    // Read sample
+    const sample = buffer[tail % capacity];
+    tail++;
+  }
+  
+  const elapsed = (performance.now() - start).toFixed(2);
+  console.log("Processed " + iterations.toLocaleString() + " audio samples in " + elapsed + "ms");
+  console.log("Throughput: " + Math.round((iterations / (elapsed / 1000))).toLocaleString() + " ops/sec");
+  return { elapsedMs: elapsed, status: "Optimal" };
+}
+
+simulateBufferOperations(1024, 500000);`
     }
-    Ok(())
+  },
+
+  // 2. Technology World - Distributed Consensus
+  {
+    _id: "tech-2",
+    world: "Technology",
+    author: {
+      _id: "user-sarah",
+      username: "sarah_chen",
+      photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&h=300&q=80",
+      bio: "Distributed Systems • Rust & Tokio",
+      verified: true
+    },
+    content: "Published v0.8 of our Raft consensus heartbeat library. Tested under simulated 35% network packet loss across 5 cluster nodes. Heartbeat election stabilizes in under 45ms.",
+    createdAt: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
+    likes: ["user-alex", "user-dan"],
+    comments: [
+      {
+        _id: "c-tech-2-1",
+        type: "text",
+        text: "How do you handle split-brain scenarios when 2 nodes rejoin simultaneously?",
+        author: {
+          _id: "user-alex",
+          username: "alex_dev",
+          photo: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&h=300&q=80"
+        },
+        createdAt: "40 mins ago"
+      }
+    ],
+    tech: {
+      techStack: ["Rust", "Tokio", "Raft", "Distributed"],
+      topics: ["Networking", "Systems & OS", "Software"],
+      githubUrl: "https://github.com/switch-social/raft-cluster-heartbeat",
+      demoUrl: "https://demo.switch.social/raft-visualizer",
+      language: "javascript",
+      isExecutable: true,
+      postType: "project",
+      benchmarkOps: "45ms Election Window",
+      codeSnippet: `// Raft Term Election Simulator
+class RaftNode {
+  constructor(id, totalNodes) {
+    this.id = id;
+    this.term = 1;
+    this.state = 'FOLLOWER';
+    this.votes = 0;
+    this.quorum = Math.floor(totalNodes / 2) + 1;
+  }
+  requestVote() {
+    this.state = 'CANDIDATE';
+    this.term += 1;
+    this.votes = 1; // vote for self
+    return this.votes >= this.quorum;
+  }
+}
+const node = new RaftNode(1, 5);
+console.log("Candidate Node " + node.id + " initiated Term " + node.term + " election.");
+console.log("Required Quorum: " + node.quorum + " votes.");`
+    }
+  },
+
+  // 3. Technology World - OS Architecture / Virtual Memory (Technical Deep Dive)
+  {
+    _id: "tech-3",
+    world: "Technology",
+    author: {
+      _id: "user-marcus-os",
+      username: "marcus_kernel",
+      photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&h=300&q=80",
+      bio: "Low-level kernels, memory hierarchy & hardware interfaces.",
+      verified: true
+    },
+    content: "Why does Linux use virtual memory instead of directly accessing physical RAM?\n\nDirect physical addressing would mean any errant process pointer can corrupt kernel memory or another program's address space. Virtual memory provides hardware-enforced isolation via the MMU (Memory Management Unit). When a process executes a context switch, the OS swaps the root page table pointer (CR3 register on x86-64), creating a private, contiguous 48-bit address space.",
+    createdAt: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
+    likes: ["user-alex", "user-sarah", "user-marcus-os"],
+    comments: [
+      {
+        _id: "c-tech-3-1",
+        type: "text",
+        text: "Great breakdown! Also worth highlighting TLB (Translation Lookaside Buffer) shootdowns during context switches on multi-core SMP systems.",
+        author: {
+          _id: "user-sarah",
+          username: "sarah_chen",
+          photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&h=300&q=80"
+        },
+        createdAt: "2 hours ago"
+      }
+    ],
+    tech: {
+      techStack: ["Linux", "Kernel", "Memory Management", "C++", "x86-64"],
+      topics: ["Systems & OS", "Hardware", "Software"],
+      docUrl: "https://www.kernel.org/doc/html/latest/admin-guide/mm/index.html",
+      language: "cpp",
+      isExecutable: false,
+      postType: "explanation",
+      codeSnippet: `// Linux kernel context switch routine (simplified assembly/C)
+void switch_mm_irqs_off(struct mm_struct *prev, struct mm_struct *next,
+                        struct task_struct *tsk) {
+    // Check if the address space is actually changing
+    if (likely(prev != next)) {
+        // Load CR3 register with the physical address of the next PGD
+        native_write_cr3(virt_to_phys(next->pgd));
+        trace_tlb_flush(TLB_FLUSH_ON_TASK_SWITCH, TLB_FLUSH_ALL);
+    }
 }`
     }
   },
-  // 4. Music World
+
+  // 4. Technology World - AI / Machine Learning (Algorithm Breakdown)
   {
-    _id: "music-1",
-    world: "Music",
+    _id: "tech-4",
+    world: "Technology",
     author: {
-      _id: "user-jordan",
-      username: "Jordan_Vance",
-      photo: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=300&h=300&q=80",
-      bio: "Modular synthesist & film composer. Analog circuits + tape delay.",
+      _id: "user-priya-ai",
+      username: "priya_ml",
+      photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&h=300&q=80",
+      bio: "Machine Learning research & optimized tensor kernels.",
       verified: true
     },
-    content: "Midnight Echoes (Live Eurorack & Fender Rhodes Session). Captured straight to 1/2-inch reel tape at 15 IPS with zero computer plugins. Pure harmonics and organic tape flutter.",
-    image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80",
-    createdAt: new Date(Date.now() - 1000 * 60 * 300).toISOString(),
-    likes: ["user-jordan", "user-elena", "user-maya"],
-    comments: [
-      {
-        _id: "c-m1",
-        text: "That tape saturation warms up the Rhodes in a way no VST can touch.",
-        author: { _id: "user-elena", username: "Elena_Vance", photo: "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=300&h=300&q=80" },
-        createdAt: "4h ago"
-      }
-    ],
-    music: {
-      trackTitle: "Midnight Echoes (Live Reel-to-Reel)",
-      duration: "3:48",
-      genre: "Neo-Classical Ambient",
-      bpm: 76,
-      key: "D Minor",
-      instruments: ["1973 Fender Rhodes Mk1", "Make Noise Eurorack", "Roland Space Echo RE-201", "Revox B77 Tape"]
-    }
-  },
-  // 5. Fitness World
-  {
-    _id: "fit-1",
-    world: "Fitness",
-    author: {
-      _id: "user-marcus",
-      username: "Coach_Marcus",
-      photo: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&h=300&q=80",
-      bio: "Olympic gymnastics strength coach & functional movement specialist.",
-      verified: true
-    },
-    content: "High-Tension Calisthenics Routine for Upper Body Control. The goal here is strict time-under-tension: 3-second negatives on every pull and zero momentum. Quality of movement beats quantity every single time.",
-    image: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1200&q=80",
-    createdAt: new Date(Date.now() - 1000 * 60 * 420).toISOString(),
-    likes: ["user-marcus", "user-sarah"],
-    comments: [
-      {
-        _id: "c-f1",
-        text: "Those hollow-body holds are brutal at the end of the circuit! Great programming.",
-        author: { _id: "user-sarah", username: "Sarah_Chen", photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&h=300&q=80" },
-        createdAt: "5h ago"
-      }
-    ],
-    fitness: {
-      routineType: "Gymnastic Strength & Core Control",
-      duration: "45 minutes",
-      intensity: "High",
-      targetMuscles: ["Lats", "Rhomboids", "Anterior Core", "Triceps", "Scapular Stabilizers"],
-      caloriesBurned: "~410 kcal",
-      exercises: [
-        { name: "Strict Bar Muscle-Up (or Chest-to-Bar Pull)", sets: "4 sets", reps: "5 reps", rest: "90 sec" },
-        { name: "Ring Dips with 2-sec bottom pause", sets: "4 sets", reps: "10-12 reps", rest: "75 sec" },
-        { name: "L-Sit to Tuck Planche Transition", sets: "3 sets", reps: "6 reps", rest: "60 sec" },
-        { name: "Hollow-Body Rockers into 20s Hold", sets: "3 sets", reps: "45 sec", rest: "45 sec" }
-      ]
-    }
-  },
-  // 6. Cooking World #2
-  {
-    _id: "cook-2",
-    world: "Cooking",
-    author: {
-      _id: "user-marco",
-      username: "Marco_Rossi",
-      photo: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&h=300&q=80",
-      bio: "Roman culinary traditions. Pasta lover & olive grove custodian.",
-      verified: false
-    },
-    content: "No cream. No garlic. No onions. Authentic Spaghetti alla Carbonara uses just four ingredients: Guanciale, Pecorino Romano, farm eggs, and coarse black pepper. Emulsify with starchy pasta water off the flame.",
-    image: "https://images.unsplash.com/photo-1612874742237-6526221588e3?auto=format&fit=crop&w=1200&q=80",
-    createdAt: new Date(Date.now() - 1000 * 60 * 600).toISOString(),
-    likes: ["user-elena", "user-marco"],
+    content: "Implemented scaled dot-product attention in pure NumPy without framework dependencies. Notice how dividing by sqrt(d_k) prevents the softmax gradients from vanishing into regions with extremely small gradients when vector dimensionality is high.",
+    createdAt: new Date(Date.now() - 1000 * 60 * 360).toISOString(),
+    likes: ["user-alex", "user-priya-ai"],
     comments: [],
-    cooking: {
-      prepTime: "10 mins",
-      cookTime: "15 mins",
-      difficulty: "Easy",
-      servings: "2 hearty plates",
-      ingredients: [
-        "220g Bronze-die extruded Spaghetti",
-        "140g Guanciale (cured pork jowl), sliced into 1/2cm batons",
-        "3 Large organic egg yolks + 1 whole egg",
-        "60g Pecorino Romano DOP, finely grated",
-        "Whole black peppercorns, coarsely crushed"
-      ],
-      instructions: [
-        "Render guanciale batons gently over medium heat until crispy outside and tender within; turn off flame.",
-        "Whisk yolks, whole egg, grated Pecorino, and heavy black pepper into a silky thick cream.",
-        "Boil spaghetti in lightly salted water until very al dente (2 mins shy of package directions).",
-        "Transfer pasta directly into the pan with warm rendered guanciale fat; toss to coat.",
-        "Take pan completely off the heat, wait 20 seconds, then pour egg mixture while vigorously swirling pasta.",
-        "Add splashes of starchy pasta water to emulsify into a glossy sauce. Serve with extra Pecorino."
-      ]
+    tech: {
+      techStack: ["Python", "NumPy", "Transformers", "Linear Algebra"],
+      topics: ["AI / ML", "Software", "Data"],
+      githubUrl: "https://github.com/switch-social/micro-attention-kernel",
+      language: "python",
+      isExecutable: false,
+      postType: "explanation",
+      codeSnippet: `import numpy as np
+
+def scaled_dot_product_attention(Q, K, V, mask=None):
+    """
+    Q, K, V matrices with shape (batch_size, seq_len, d_k)
+    """
+    d_k = Q.shape[-1]
+    scores = np.matmul(Q, K.swapaxes(-2, -1)) / np.sqrt(d_k)
+    
+    if mask is not None:
+        scores = np.where(mask == 0, -1e9, scores)
+        
+    weights = np.exp(scores - np.max(scores, axis=-1, keepdims=True))
+    weights /= np.sum(weights, axis=-1, keepdims=True)
+    return np.matmul(weights, V)`
     }
+  },
+
+  // 3. Meme World - Production Friday Meme
+  {
+    _id: "meme-1",
+    world: "Meme",
+    author: {
+      _id: "user-devmemes",
+      username: "DevHumor",
+      photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&h=300&q=80",
+      bio: "Turning production bugs into cultural artifacts.",
+      verified: true,
+    },
+    content: "When you push straight to production on a Friday afternoon thinking 'what could possibly go wrong?' 💀 Click 'Remix Template' to customize your own variant in the Mini Editor!",
+    image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=80",
+    createdAt: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
+    likes: ["user-alex", "user-dan", "user-sarah"],
+    sharesCount: 142,
+    meme: {
+      isTemplate: true,
+      remixCount: 89,
+      templateImageUrl: "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=80",
+      canvasWidth: 600,
+      canvasHeight: 400,
+      layers: [
+        {
+          id: "t1",
+          text: "DEPLOYING ON FRIDAY 5PM",
+          x: 300,
+          y: 45,
+          fontSize: 28,
+          fontFamily: "Impact",
+          fillColor: "#ffffff",
+          strokeColor: "#000000",
+          strokeWidth: 3,
+          rotation: 0,
+          isAllCaps: true,
+        },
+        {
+          id: "t2",
+          text: "ON-CALL ENGINEER'S WEEKEND",
+          x: 300,
+          y: 360,
+          fontSize: 28,
+          fontFamily: "Impact",
+          fillColor: "#ffffff",
+          strokeColor: "#000000",
+          strokeWidth: 3,
+          rotation: 0,
+          isAllCaps: true,
+        }
+      ]
+    },
+    comments: [
+      {
+        _id: "cmeme-1",
+        type: "audio",
+        audio: {
+          mediaUrl: "https://actions.google.com/sounds/v1/crowds/battle_crowd_celebrate_staged.ogg",
+          durationMs: 8200,
+          waveform: [0.15, 0.35, 0.75, 0.9, 0.6, 0.8, 0.45, 0.3, 0.65, 0.85, 0.5, 0.2, 0.7, 0.95, 0.4, 0.1],
+          mimeType: "audio/ogg",
+        },
+        author: {
+          _id: "user-alex",
+          username: "alex_dev",
+          photo: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&h=300&q=80",
+        },
+        createdAt: "10 mins ago"
+      },
+      {
+        _id: "cmeme-2",
+        type: "text",
+        text: "The sheer accuracy of this hurts my soul 😂",
+        author: {
+          _id: "user-dan",
+          username: "Dan_A",
+          photo: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=300&h=300&q=80",
+        },
+        createdAt: "5 mins ago"
+      }
+    ]
+  },
+
+  // 4. Meme World - Code Review Template
+  {
+    _id: "meme-2",
+    world: "Meme",
+    author: {
+      _id: "user-dan",
+      username: "Dan_A",
+      photo: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=300&h=300&q=80",
+      bio: "Meme aficionado & full-stack builder.",
+      verified: true
+    },
+    content: "When senior dev approves your 1-line PR in 12 seconds vs when you change 400 lines of CSS formatting. Remix this template with your team's code review drama!",
+    image: "https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?auto=format&fit=crop&w=1200&q=80",
+    createdAt: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
+    likes: ["user-alex", "user-devmemes"],
+    sharesCount: 65,
+    meme: {
+      isTemplate: true,
+      remixCount: 42,
+      templateImageUrl: "https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?auto=format&fit=crop&w=1200&q=80",
+      canvasWidth: 600,
+      canvasHeight: 400,
+      layers: [
+        {
+          id: "m2-1",
+          text: "1 LINE TYPO FIX: APPROVED",
+          x: 300,
+          y: 45,
+          fontSize: 26,
+          fontFamily: "Impact",
+          fillColor: "#ffffff",
+          strokeColor: "#000000",
+          strokeWidth: 3,
+          rotation: 0,
+          isAllCaps: true,
+        },
+        {
+          id: "m2-2",
+          text: "400 LINES CSS: 89 COMMENTS",
+          x: 300,
+          y: 360,
+          fontSize: 26,
+          fontFamily: "Impact",
+          fillColor: "#ffffff",
+          strokeColor: "#000000",
+          strokeWidth: 3,
+          rotation: 0,
+          isAllCaps: true,
+        }
+      ]
+    },
+    comments: []
+  },
+
+  // 5. Cricket World - Match Highlight & Voice Reaction
+  {
+    _id: "cricket-1",
+    world: "Cricket",
+    author: {
+      _id: "user-cricketinsider",
+      username: "CricketPundit",
+      photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&h=300&q=80",
+      bio: "Covering Test cricket, franchise leagues & tactical match analysis.",
+      verified: true,
+    },
+    content: "Unbelievable spell in the final session! 4 wickets for 18 runs under lights. The seam movement off the deck was impossible to play. Listen to the 20-second audio reaction breakdown attached below 🎙️🏏",
+    image: "https://images.unsplash.com/photo-1531415074868-036b1c57e329?auto=format&fit=crop&w=1200&q=80",
+    createdAt: new Date(Date.now() - 1000 * 60 * 28).toISOString(),
+    likes: ["user-alex", "user-dan", "user-sarah"],
+    sharesCount: 78,
+    cricket: {
+      matchTitle: "India vs Australia — Border-Gavaskar Trophy",
+      teams: { home: "IND", away: "AUS" },
+      scoreSnippet: "AUS 184 & 92/4 (31.4 ov) • Target 240",
+      matchFormat: "Test",
+      venue: "Perth Stadium, Australia",
+      currentOver: "31.4 ov",
+      target: "240 runs"
+    },
+    comments: [
+      {
+        _id: "ccrick-1",
+        type: "audio",
+        audio: {
+          mediaUrl: "https://actions.google.com/sounds/v1/sports/football_match_crowd_cheer.ogg",
+          durationMs: 14500,
+          waveform: [0.2, 0.4, 0.6, 0.85, 0.95, 0.9, 0.7, 0.8, 0.88, 0.92, 0.78, 0.65, 0.45, 0.3, 0.15],
+          mimeType: "audio/ogg",
+        },
+        author: {
+          _id: "user-crickfan",
+          username: "Ravi_Commentary",
+          photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&h=300&q=80",
+        },
+        createdAt: "18 mins ago"
+      },
+      {
+        _id: "ccrick-2",
+        type: "text",
+        text: "That outswinger to dismiss the captain was absolute poetry. Ball of the century contender!",
+        author: {
+          _id: "user-dan",
+          username: "Dan_A",
+          photo: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=300&h=300&q=80",
+        },
+        createdAt: "12 mins ago"
+      }
+    ]
+  },
+
+  // 6. Cricket World - T20 Super Over Thriller
+  {
+    _id: "cricket-2",
+    world: "Cricket",
+    author: {
+      _id: "user-ravicomms",
+      username: "Ravi_Commentary",
+      photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&h=300&q=80",
+      bio: "Pitch Reports & 30s Voice Reaction Highlights",
+      verified: true
+    },
+    content: "SUPER OVER THRILLER! 18 needed off 6 balls and it went down to the final delivery. Yorkers executed with laser precision. Listen to my immediate audio pitch reaction from the commentary box!",
+    image: "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&w=1200&q=80",
+    createdAt: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
+    likes: ["user-cricketinsider", "user-alex"],
+    sharesCount: 112,
+    cricket: {
+      matchTitle: "T20 Championship — Super Over Eliminator",
+      teams: { home: "ENG", away: "SA" },
+      scoreSnippet: "Match Tied (198/6) • Super Over Live",
+      matchFormat: "T20",
+      venue: "Lord's Cricket Ground, London",
+      currentOver: "Super Over",
+      target: "19 runs"
+    },
+    comments: [
+      {
+        _id: "ccrick-2-audio",
+        type: "audio",
+        audio: {
+          mediaUrl: "https://actions.google.com/sounds/v1/sports/football_match_crowd_cheer.ogg",
+          durationMs: 16200,
+          waveform: [0.3, 0.6, 0.9, 0.95, 0.8, 0.85, 0.7, 0.9, 0.8, 0.4, 0.2],
+          mimeType: "audio/ogg",
+        },
+        author: {
+          _id: "user-cricketinsider",
+          username: "CricketPundit",
+          photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&h=300&q=80"
+        },
+        createdAt: "2 hours ago"
+      }
+    ]
   }
 ];
 
+// EXACTLY 3 specialized worlds + All
 export const WORLD_DEFINITIONS = [
   {
     id: "All",
     label: "All Worlds",
-    tagline: "The collective stream across all specialized domains",
+    tagline: "The collective stream across Technology, Meme, and Cricket worlds",
     color: "#506ffc",
-    badgeBg: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
-  },
-  {
-    id: "Cooking",
-    label: "Cooking World",
-    tagline: "Recipes, kitchen science, food photography & culinary craft",
-    color: "#f97316",
-    badgeBg: "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20"
-  },
-  {
-    id: "Art",
-    label: "Art World",
-    tagline: "Visual arts, gallery exhibitions, mediums & creative processes",
-    color: "#a855f7",
-    badgeBg: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20"
+    badgeBg: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+    slug: "/"
   },
   {
     id: "Technology",
     label: "Technology World",
-    tagline: "Engineering architectures, open source repositories, code & tutorials",
+    tagline: "Engineering architectures, open source repositories, code execution & tutorials",
     color: "#06b6d4",
-    badgeBg: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20"
+    badgeBg: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20",
+    slug: "/world/tech"
   },
   {
-    id: "Music",
-    label: "Music World",
-    tagline: "Audio previews, production breakdowns, synthesizer jams & performances",
-    color: "#ec4899",
-    badgeBg: "bg-pink-500/10 text-pink-600 dark:text-pink-400 border-pink-500/20"
+    id: "Meme",
+    label: "Meme World",
+    tagline: "Interactive meme templates, caption remixes & cultural banter",
+    color: "#eab308",
+    badgeBg: "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20",
+    slug: "/world/meme"
   },
   {
-    id: "Fitness",
-    label: "Fitness World",
-    tagline: "Workout breakdowns, training logs, calisthenics & nutrition",
+    id: "Cricket",
+    label: "Cricket World",
+    tagline: "Live scoreboards, match discussions, 30s voice reaction notes & pitch analysis",
     color: "#10b981",
-    badgeBg: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+    badgeBg: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+    slug: "/world/cricket"
   }
 ] as const;
-

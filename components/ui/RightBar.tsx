@@ -1,10 +1,12 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { TrendingUp, Users, Sparkles, Check, Plus, ExternalLink, Globe2, BookOpen, Compass } from "lucide-react";
+import { TrendingUp, Users, Sparkles, Check, Plus, ExternalLink, Globe2, BookOpen, Compass, Code2, Trophy, ArrowLeft, Radio } from "lucide-react";
 import { useActiveWorld } from "../ActiveWorldContext";
 import { WORLD_DEFINITIONS } from "@/lib/data/worldsData";
+import TechRightBar from "../worlds/tech/TechRightBar";
 
 interface CreatorSuggestion {
   id: string;
@@ -16,42 +18,6 @@ interface CreatorSuggestion {
 }
 
 const WORLD_CREATORS: Record<string, CreatorSuggestion[]> = {
-  Cooking: [
-    {
-      id: "user-elena",
-      name: "Elena Vance",
-      handle: "elena_vance",
-      world: "Cooking",
-      photo: "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=300&h=300&q=80",
-      bio: "Head Baker • 82% Hydration Sourdoughs"
-    },
-    {
-      id: "user-marco",
-      name: "Marco Rossi",
-      handle: "marco_rossi",
-      world: "Cooking",
-      photo: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&h=300&q=80",
-      bio: "Roman Traditions • Guanciale & Pasta"
-    }
-  ],
-  Art: [
-    {
-      id: "user-maya",
-      name: "Maya Lin",
-      handle: "maya_lin",
-      world: "Art",
-      photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&h=300&q=80",
-      bio: "Atmospheric Oil Painter • Stockholm"
-    },
-    {
-      id: "user-kenji",
-      name: "Kenji Sato",
-      handle: "kenji_sato",
-      world: "Art",
-      photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&h=300&q=80",
-      bio: "Generative Shaders & WebGL Sculptures"
-    }
-  ],
   Technology: [
     {
       id: "user-sarah",
@@ -67,125 +33,128 @@ const WORLD_CREATORS: Record<string, CreatorSuggestion[]> = {
       handle: "alex_rivera",
       world: "Technology",
       photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&h=300&q=80",
-      bio: "React 19 & Next.js Streaming Architecture"
+      bio: "Systems Architect & Sandbox Runtime"
     }
   ],
-  Music: [
+  Meme: [
     {
-      id: "user-jordan",
-      name: "Jordan Vance",
-      handle: "jordan_vance",
-      world: "Music",
-      photo: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=300&h=300&q=80",
-      bio: "Modular Synthesist • 1/2-Inch Reel Tapes"
+      id: "user-devmemes",
+      name: "Dev Humor",
+      handle: "devhumor",
+      world: "Meme",
+      photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&h=300&q=80",
+      bio: "Turning bugs into cultural memes"
+    },
+    {
+      id: "user-remixking",
+      name: "Template Master",
+      handle: "remix_king",
+      world: "Meme",
+      photo: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&h=300&q=80",
+      bio: "Original Canvas Meme Templates"
     }
   ],
-  Fitness: [
+  Cricket: [
     {
-      id: "user-marcus",
-      name: "Coach Marcus",
-      handle: "coach_marcus",
-      world: "Fitness",
-      photo: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&h=300&q=80",
-      bio: "Gymnastics Strength • Strict Tension"
+      id: "user-cricketinsider",
+      name: "Cricket Pundit",
+      handle: "cricketpundit",
+      world: "Cricket",
+      photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&h=300&q=80",
+      bio: "Tactical Match Analysis & Ball-by-ball Voice Notes"
+    },
+    {
+      id: "user-ravicomms",
+      name: "Ravi Commentary",
+      handle: "ravi_commentary",
+      world: "Cricket",
+      photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&h=300&q=80",
+      bio: "Pitch Reports & 30s Voice Reaction Highlights"
     }
   ],
   All: [
-    {
-      id: "user-elena",
-      name: "Elena Vance",
-      handle: "elena_vance",
-      world: "Cooking",
-      photo: "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=300&h=300&q=80",
-      bio: "Head Baker • Artisanal Patisserie"
-    },
-    {
-      id: "user-maya",
-      name: "Maya Lin",
-      handle: "maya_lin",
-      world: "Art",
-      photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&h=300&q=80",
-      bio: "Contemporary Oil Painter"
-    },
     {
       id: "user-sarah",
       name: "Sarah Chen",
       handle: "sarah_chen",
       world: "Technology",
       photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&h=300&q=80",
-      bio: "Distributed Systems • Rust"
+      bio: "Tokio Contributor • Tech World"
+    },
+    {
+      id: "user-devmemes",
+      name: "Dev Humor",
+      handle: "devhumor",
+      world: "Meme",
+      photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&h=300&q=80",
+      bio: "Friday Deploy Panic • Meme World"
+    },
+    {
+      id: "user-cricketinsider",
+      name: "Cricket Pundit",
+      handle: "cricketpundit",
+      world: "Cricket",
+      photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&h=300&q=80",
+      bio: "Perth Test Analysis • Cricket World"
     }
   ]
 };
 
 const WORLD_TRENDING: Record<string, { tag: string; count: string; highlight: string }[]> = {
-  Cooking: [
-    { tag: "SourdoughFerment", count: "1.4k posts", highlight: "Cold proofing schedules" },
-    { tag: "GuancialeCarbonara", count: "820 posts", highlight: "Roman pasta technique" },
-    { tag: "Hydration82", count: "650 posts", highlight: "High hydration bread doughs" }
-  ],
-  Art: [
-    { tag: "BelgianLinenStudies", count: "890 works", highlight: "Oil glaze progression" },
-    { tag: "AtmosphericFog", count: "540 works", highlight: "Light scattering techniques" },
-    { tag: "GenerativeShaders", count: "730 works", highlight: "WebGL biomimicry" }
-  ],
   Technology: [
-    { tag: "LockFreeConcurrency", count: "2.1k discussions", highlight: "Ring buffer atomics" },
-    { tag: "TokioRuntime", count: "1.3k discussions", highlight: "Async cooperative scheduling" },
-    { tag: "SolarCache", count: "980 discussions", highlight: "v0.8 release benchmarks" }
+    { tag: "LockFreeConcurrency", count: "24 discussions", highlight: "Ring buffer atomics" },
+    { tag: "TokioRuntime", count: "18 snippets", highlight: "Async cooperative scheduling" },
+    { tag: "SolarCache", count: "12 benchmarks", highlight: "v0.8 release discussion" }
   ],
-  Music: [
-    { tag: "ModularSynthJams", count: "650 tracks", highlight: "Eurorack generative patches" },
-    { tag: "ReelToReelTape", count: "420 tracks", highlight: "Revox tape saturation" }
+  Meme: [
+    { tag: "FridayDeployMeme", count: "16 remixes", highlight: "Production outage templates" },
+    { tag: "DistractedDev", count: "11 remixes", highlight: "Rewriting in Rust format" },
+    { tag: "CSSinProduction", count: "8 remixes", highlight: "Flexbox vs Grid chaos" }
   ],
-  Fitness: [
-    { tag: "StrictCalisthenics", count: "1.2k logs", highlight: "No-momentum muscle-ups" },
-    { tag: "CoreControl", count: "840 logs", highlight: "L-sit to planche progressions" }
+  Cricket: [
+    { tag: "BorderGavaskarTrophy", count: "19 voice notes", highlight: "Perth Test final day" },
+    { tag: "BallOfTheCentury", count: "14 discussions", highlight: "Outswinger seam analysis" },
+    { tag: "SuperOverDugout", count: "9 audio reactions", highlight: "Crowd audio snippets" }
   ],
   All: [
-    { tag: "SourdoughFerment", count: "1.4k posts", highlight: "Cooking World" },
-    { tag: "LockFreeConcurrency", count: "2.1k posts", highlight: "Technology World" },
-    { tag: "BelgianLinenStudies", count: "890 posts", highlight: "Art World" },
-    { tag: "StrictCalisthenics", count: "1.2k posts", highlight: "Fitness World" }
+    { tag: "LockFreeConcurrency", count: "Technology", highlight: "Ring buffer atomics" },
+    { tag: "FridayDeployMeme", count: "Meme", highlight: "Community canvas remix" },
+    { tag: "BorderGavaskarTrophy", count: "Cricket", highlight: "Simulated match notes" }
   ]
 };
 
-const WORLD_RECOMMENDATIONS: Record<string, { title: string; subtitle: string; linkText: string }> = {
-  Cooking: {
-    title: "Culinary Recommendation",
-    subtitle: "The 36-Hour Cold Fermentation Guide for Open Crumb Bread",
-    linkText: "Read Baking Guide →"
-  },
-  Art: {
-    title: "Curated Exhibition",
-    subtitle: "Atmospheric Reverie: Light & Scumbled Pigments 2026",
-    linkText: "View Exhibition →"
-  },
+const WORLD_RECOMMENDATIONS: Record<string, { title: string; subtitle: string; linkText: string; url: string }> = {
   Technology: {
     title: "Open Source Spotlight",
     subtitle: "SolarCache: High-throughput Lock-free In-Memory Engine",
-    linkText: "Explore Repo →"
+    linkText: "Inspect Repository & Sandbox →",
+    url: "/world/tech"
   },
-  Music: {
-    title: "Tape Studio Session",
-    subtitle: "Midnight Echoes Live Reel-to-Reel Take",
-    linkText: "Listen Preview →"
+  Meme: {
+    title: "Trending Meme Template",
+    subtitle: "Friday Deploy Panic: Community template ready to remix",
+    linkText: "Launch Canvas Editor →",
+    url: "/world/meme"
   },
-  Fitness: {
-    title: "Training Protocol",
-    subtitle: "Gymnastics Upper Body Tension Routine",
-    linkText: "Inspect Circuit →"
+  Cricket: {
+    title: "Match Audio Recap",
+    subtitle: "Perth Test Scenario: 30-second crowd audio reactions",
+    linkText: "Listen to Voice Notes →",
+    url: "/world/cricket"
   },
   All: {
-    title: "Switch Spotlight",
-    subtitle: "Discover how every passion thrives in its dedicated world",
-    linkText: "Explore All Worlds →"
+    title: "Dedicated World Portals",
+    subtitle: "Explore dedicated experiences for Technology, Meme, and Cricket",
+    linkText: "Explore Portals →",
+    url: "/explore"
   }
 };
 
 export const RightBar: React.FC = () => {
+  const pathname = usePathname();
+  const router = useRouter();
   const { data: session } = useSession();
-  const { activeWorld } = useActiveWorld();
+  const { activeWorld, setActiveWorld } = useActiveWorld();
   const [followingMap, setFollowingMap] = useState<Record<string, boolean>>({});
 
   const toggleFollow = (creatorId: string) => {
@@ -195,141 +164,212 @@ export const RightBar: React.FC = () => {
     }));
   };
 
-  const creators = WORLD_CREATORS[activeWorld] || WORLD_CREATORS.All;
-  const trending = WORLD_TRENDING[activeWorld] || WORLD_TRENDING.All;
-  const recommendation = WORLD_RECOMMENDATIONS[activeWorld] || WORLD_RECOMMENDATIONS.All;
+  // Derive contextual active world strictly from the route
+  let effectiveWorld = activeWorld;
+  if (pathname?.startsWith("/world/tech")) {
+    effectiveWorld = "Technology";
+  } else if (pathname?.startsWith("/world/meme")) {
+    effectiveWorld = "Meme";
+  } else if (pathname?.startsWith("/world/cricket")) {
+    effectiveWorld = "Cricket";
+  }
+
+  const worldClass =
+    effectiveWorld === "Technology"
+      ? "world-tech"
+      : effectiveWorld === "Meme"
+      ? "world-meme"
+      : effectiveWorld === "Cricket"
+      ? "world-cricket"
+      : "";
+
+  const creators = WORLD_CREATORS[effectiveWorld] || WORLD_CREATORS.All;
+  const trending = WORLD_TRENDING[effectiveWorld] || WORLD_TRENDING.All;
+  const recommendation = WORLD_RECOMMENDATIONS[effectiveWorld] || WORLD_RECOMMENDATIONS.All;
+
+  const isInsideDedicatedWorld = pathname?.startsWith("/world/");
+
+  if (effectiveWorld === "Technology") {
+    return <TechRightBar />;
+  }
 
   return (
-    <div className="w-full space-y-4 p-4 sm:p-5 text-sm overflow-y-auto max-h-screen no-scrollbar">
+    <div className={`w-full space-y-3.5 p-4 sm:p-5 text-sm overflow-y-auto max-h-screen no-scrollbar ${worldClass}`}>
       {/* Contextual World Header */}
-      <div className="p-3.5 rounded-2xl bg-card border border-border flex items-center justify-between shadow-xs">
-        <div className="flex items-center gap-2">
-          <Globe2 className="w-4 h-4 text-primary" />
-          <span className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
-            Current Context
+      <div className="p-3.5 rounded-lg bg-card border border-border space-y-2.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-primary" />
+            <span className="font-bold text-xs text-foreground uppercase tracking-wider">
+              {effectiveWorld === "All" ? "Global Stream" : `${effectiveWorld} World`}
+            </span>
+          </div>
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-secondary text-muted-foreground border border-border">
+            {effectiveWorld === "All" ? "Multiverse" : "Dedicated"}
           </span>
         </div>
-        <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
-          {activeWorld === "All" ? "All Worlds" : `${activeWorld} World`}
-        </span>
+
+        {/* Quick jump/exit actions */}
+        {isInsideDedicatedWorld ? (
+          <Link
+            href="/"
+            className="w-full py-1.5 px-3 rounded-md bg-secondary hover:bg-secondary/80 text-foreground text-xs font-semibold flex items-center justify-center gap-1.5 border border-border transition-colors"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Exit to Main Feed</span>
+          </Link>
+        ) : effectiveWorld !== "All" ? (
+          <Link
+            href={recommendation.url}
+            className="w-full py-1.5 px-3 rounded-md bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-primary/90 transition-colors"
+          >
+            <span>Enter Dedicated {effectiveWorld} UI →</span>
+          </Link>
+        ) : null}
       </div>
 
-      {/* Contextual Recommendation Card */}
-      <div className="p-4 rounded-2xl bg-secondary/70 border border-border space-y-2">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-primary">
+      {/* World Switcher Fast-Nav */}
+      <div className="p-3 rounded-lg bg-secondary/40 border border-border space-y-2">
+        <div className="flex items-center justify-between text-[11px] font-semibold text-muted-foreground px-1">
+          <span>Switch World Focus</span>
+          <Globe2 className="w-3.5 h-3.5 text-primary" />
+        </div>
+        <div className="grid grid-cols-3 gap-1.5">
+          <button
+            onClick={() => router.push("/world/tech")}
+            className={`px-2 py-1.5 rounded-md text-xs font-semibold transition-colors cursor-pointer ${
+              effectiveWorld === "Technology"
+                ? "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-900/40 font-bold"
+                : "bg-card text-muted-foreground hover:text-foreground border border-border"
+            }`}
+          >
+            Tech
+          </button>
+          <button
+            onClick={() => router.push("/world/cricket")}
+            className={`px-2 py-1.5 rounded-md text-xs font-semibold transition-colors cursor-pointer ${
+              effectiveWorld === "Cricket"
+                ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/40 font-bold"
+                : "bg-card text-muted-foreground hover:text-foreground border border-border"
+            }`}
+          >
+            Cricket
+          </button>
+          <button
+            onClick={() => router.push("/world/meme")}
+            className={`px-2 py-1.5 rounded-md text-xs font-semibold transition-colors cursor-pointer ${
+              effectiveWorld === "Meme"
+                ? "bg-amber-50 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-900/40 font-bold"
+                : "bg-card text-muted-foreground hover:text-foreground border border-border"
+            }`}
+          >
+            Memes
+          </button>
+        </div>
+      </div>
+
+      {/* Contextual Recommendation */}
+      <div className="p-3.5 rounded-lg bg-card border border-border space-y-2">
+        <div className="flex items-center gap-1.5 text-primary text-xs font-bold uppercase tracking-wider">
           <BookOpen className="w-3.5 h-3.5" />
           <span>{recommendation.title}</span>
         </div>
-        <p className="text-xs font-semibold text-foreground leading-snug">
+        <p className="text-xs text-foreground font-semibold leading-relaxed">
           {recommendation.subtitle}
         </p>
         <Link
-          href={`/search?q=${activeWorld === "All" ? "Switch" : activeWorld}`}
-          className="inline-block text-xs font-bold text-primary hover:underline pt-1"
+          href={recommendation.url}
+          className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline pt-0.5"
         >
-          {recommendation.linkText}
+          <span>{recommendation.linkText}</span>
         </Link>
       </div>
 
-      {/* Suggested Creators in this World */}
-      <div className="bg-card rounded-2xl border border-border p-4 shadow-xs space-y-3.5">
+      {/* Trending Topics Contextual to Current World */}
+      <div className="bg-card rounded-lg border border-border p-3.5 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-primary" />
+            <h3 className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
+              Trending in {effectiveWorld === "All" ? "Switch" : effectiveWorld}
+            </h3>
+          </div>
+          <span className="text-[10px] text-muted-foreground font-mono">Live</span>
+        </div>
+
+        <div className="space-y-2.5">
+          {trending.map((item, idx) => (
+            <div key={idx} className="group cursor-pointer">
+              <p className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+                #{item.tag}
+              </p>
+              <div className="flex items-center justify-between text-[11px] text-muted-foreground mt-0.5">
+                <span>{item.highlight}</span>
+                <span className="font-mono text-[10px] bg-secondary px-1.5 py-0.5 rounded border border-border">{item.count}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Contextual Creators for Current World */}
+      <div className="bg-card rounded-lg border border-border p-3.5 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Users className="w-4 h-4 text-primary" />
-            <h4 className="font-bold text-foreground text-xs uppercase tracking-wider">
-              {activeWorld === "All" ? "Featured Creators" : `Top in ${activeWorld}`}
-            </h4>
+            <h3 className="font-bold text-xs uppercase tracking-wider text-muted-foreground">
+              {effectiveWorld === "All" ? "Featured Creators" : `${effectiveWorld} Creators`}
+            </h3>
           </div>
-          <Link href="/explore" className="text-xs text-primary hover:underline font-semibold">
-            See all
-          </Link>
         </div>
 
         <div className="space-y-3">
-          {creators.map((creator) => {
-            const isFollowing = !!followingMap[creator.id];
+          {creators.map((c) => {
+            const isFollowing = followingMap[c.id];
             return (
-              <div key={creator.id} className="flex items-center justify-between gap-3">
-                <Link href={`/profile/${creator.id}`} className="flex items-center gap-2.5 overflow-hidden group">
+              <div key={c.id} className="flex items-center justify-between gap-3">
+                <Link href={`/profile/${c.id}`} className="flex items-center gap-2.5 overflow-hidden group">
                   <img
-                    src={creator.photo}
-                    alt={creator.name}
-                    className="w-9 h-9 rounded-full object-cover border border-border group-hover:scale-105 transition-transform shrink-0"
+                    src={c.photo}
+                    alt={c.name}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(c.handle)}`;
+                    }}
+                    className="w-8 h-8 rounded-full object-cover border border-border group-hover:ring-1 group-hover:ring-primary transition-all shrink-0"
                   />
                   <div className="overflow-hidden">
-                    <p className="font-semibold text-xs text-foreground truncate group-hover:text-primary transition-colors">
-                      {creator.name}
+                    <p className="font-semibold text-xs text-foreground truncate group-hover:underline">
+                      {c.name}
                     </p>
                     <p className="text-[10px] text-muted-foreground truncate">
-                      {creator.bio}
+                      {c.bio}
                     </p>
                   </div>
                 </Link>
 
                 <button
-                  onClick={() => toggleFollow(creator.id)}
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shrink-0 ${
+                  onClick={() => toggleFollow(c.id)}
+                  className={`px-3 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer shrink-0 ${
                     isFollowing
-                      ? "bg-secondary text-foreground border border-border"
-                      : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs"
+                      ? "bg-secondary text-foreground hover:bg-secondary/80 border border-border"
+                      : "bg-primary text-primary-foreground hover:bg-primary/90"
                   }`}
                 >
                   {isFollowing ? (
-                    <>
-                      <Check className="w-3 h-3 text-emerald-500" />
-                      <span>Following</span>
-                    </>
+                    <span className="flex items-center gap-1">
+                      <Check className="w-3 h-3" /> Following
+                    </span>
                   ) : (
-                    <>
-                      <Plus className="w-3 h-3" />
-                      <span>Follow</span>
-                    </>
+                    <span className="flex items-center gap-1">
+                      <Plus className="w-3 h-3" /> Follow
+                    </span>
                   )}
                 </button>
               </div>
             );
           })}
         </div>
-      </div>
-
-      {/* Contextual Trending Topics */}
-      <div className="bg-card rounded-2xl border border-border p-4 shadow-xs space-y-3">
-        <div className="flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 text-emerald-500" />
-          <h4 className="font-bold text-foreground text-xs uppercase tracking-wider">
-            {activeWorld === "All" ? "Trending Across Switch" : `Trending in ${activeWorld}`}
-          </h4>
-        </div>
-
-        <div className="space-y-2">
-          {trending.map((topic, i) => (
-            <Link
-              key={i}
-              href={`/search?q=${topic.tag}`}
-              className="block p-2 rounded-xl hover:bg-secondary/60 transition-colors group"
-            >
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-foreground group-hover:text-primary transition-colors">
-                  #{topic.tag}
-                </span>
-                <span className="text-[10px] text-muted-foreground">
-                  {topic.count}
-                </span>
-              </div>
-              <p className="text-[11px] text-muted-foreground mt-0.5">{topic.highlight}</p>
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      {/* Footer Meta */}
-      <div className="px-2 text-[11px] text-muted-foreground space-y-1 pt-1">
-        <div className="flex flex-wrap gap-x-3 gap-y-1">
-          <Link href="/explore" className="hover:underline">Explore Worlds</Link>
-          <Link href="/search" className="hover:underline">Search</Link>
-          <Link href="/create" className="hover:underline">Studio</Link>
-        </div>
-        <p>© 2026 Switch Platform • Multi-World Architecture</p>
       </div>
     </div>
   );

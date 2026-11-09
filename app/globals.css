@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -6,16 +7,40 @@
 @utility no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+
   &::-webkit-scrollbar {
     display: none;
+  }
+}
+
+@utility custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: var(--radius-sm);
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
   }
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -24,15 +49,12 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-warning: var(--warning);
+  --color-success: var(--success);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -45,82 +67,166 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-xl: var(--radius-xl);
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  /* Typography Tokens from DESIGN.md */
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Scale & Radius Tokens from DESIGN.md */
+  --radius: 0.5rem;
+  /* 8px (md) */
+  --radius-sm: 0.25rem;
+  /* 4px (sm) */
+  --radius-md: 0.5rem;
+  /* 8px (md) */
+  --radius-xl: 0.75rem;
+  /* 12px */
+
+  /* Main Application Theme: Blue & White (#1677ff & #ffffff) */
+  --background: #ffffff;
+  --foreground: #111827;
+  /* DESIGN.md text: #111827 */
   --card: #ffffff;
-  --card-foreground: #0f172a;
+  --card-foreground: #111827;
   --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  --primary: #506ffc;
+  --popover-foreground: #111827;
+  --primary: #1677ff;
+  /* DESIGN.md primary: #1677ff */
   --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
-  --secondary-foreground: #1e293b;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --accent: #f1f5f9;
-  --accent-foreground: #0f172a;
-  --destructive: #ef4444;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #506ffc;
+  --secondary: #f8fafc;
+  --secondary-foreground: #111827;
+  --muted: #f8fafc;
+  --muted-foreground: #6b7280;
+  --accent: #f0f5ff;
+  --accent-foreground: #1677ff;
+  --destructive: #dc2626;
+  /* DESIGN.md danger: #DC2626 */
+  --warning: #d97706;
+  /* DESIGN.md warning: #D97706 */
+  --success: #16a34a;
+  /* DESIGN.md success: #16A34A */
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: #1677ff;
+
   --sidebar: #ffffff;
-  --sidebar-foreground: #0f172a;
-  --sidebar-primary: #506ffc;
+  --sidebar-foreground: #111827;
+  --sidebar-primary: #1677ff;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f1f5f9;
-  --sidebar-accent-foreground: #0f172a;
-  --sidebar-border: #e2e8f0;
-  --sidebar-ring: #506ffc;
+  --sidebar-accent: #f8fafc;
+  --sidebar-accent-foreground: #111827;
+  --sidebar-border: #e5e7eb;
+  --sidebar-ring: #1677ff;
+
+  /* World Theme Specific Tokens (Inherited with restrained personality) */
+  --world-accent: #1677ff;
+  --world-accent-subtle: #f0f5ff;
+  --world-accent-foreground: #ffffff;
 }
 
 .dark {
-  --background: #0d1117;
-  --foreground: #f1f5f9;
-  --card: #161b22;
-  --card-foreground: #f1f5f9;
-  --popover: #161b22;
-  --popover-foreground: #f1f5f9;
-  --primary: #506ffc;
+  --background: #0b0f19;
+  --foreground: #f3f4f6;
+  --card: #111827;
+  --card-foreground: #f3f4f6;
+  --popover: #111827;
+  --popover-foreground: #f3f4f6;
+  --primary: #1677ff;
   --primary-foreground: #ffffff;
-  --secondary: #21262d;
-  --secondary-foreground: #f1f5f9;
-  --muted: #21262d;
-  --muted-foreground: #8b949e;
-  --accent: #21262d;
-  --accent-foreground: #f1f5f9;
-  --destructive: #f85149;
-  --border: #30363d;
-  --input: #30363d;
-  --ring: #506ffc;
-  --sidebar: #161b22;
-  --sidebar-foreground: #f1f5f9;
-  --sidebar-primary: #506ffc;
+  --secondary: #1f2937;
+  --secondary-foreground: #f3f4f6;
+  --muted: #1f2937;
+  --muted-foreground: #9ca3af;
+  --accent: #1e293b;
+  --accent-foreground: #60a5fa;
+  --destructive: #ef4444;
+  --warning: #f59e0b;
+  --success: #22c55e;
+  --border: #1f2937;
+  --input: #1f2937;
+  --ring: #1677ff;
+
+  --sidebar: #111827;
+  --sidebar-foreground: #f3f4f6;
+  --sidebar-primary: #1677ff;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #21262d;
-  --sidebar-accent-foreground: #f1f5f9;
-  --sidebar-border: #30363d;
-  --sidebar-ring: #506ffc;
+  --sidebar-accent: #1f2937;
+  --sidebar-accent-foreground: #f3f4f6;
+  --sidebar-border: #1f2937;
+  --sidebar-ring: #1677ff;
+
+  --world-accent: #1677ff;
+  --world-accent-subtle: #1e293b;
+  --world-accent-foreground: #ffffff;
 }
 
-.dark-shadow {
-  box-shadow: 
-  0 2px 4px rgba(0, 0, 0, 0.7), 
-  0 6px 12px rgba(0, 0, 0, 0.5);
+/* =========================================================
+   WORLD-SPECIFIC COHESIVE THEME PERSONALITIES
+   Main Switch identity is preserved across all worlds.
+   World scopes only introduce restrained accent variations.
+========================================================= */
 
+/* 1. Technology World: Minimal Editorial Technology UI (#FFFFFF, #F5F7FA, #2463D3, #17243A) */
+.world-tech {
+  --primary: #2463D3;
+  --world-accent: #2463D3;
+  --world-accent-subtle: #eff6ff;
+  --world-accent-foreground: #ffffff;
+  --world-navy: #17243A;
+  --world-bg: #F5F7FA;
+  --world-border: #E2E8F0;
+}
+
+.dark .world-tech,
+.world-tech.dark {
+  --primary: #3b82f6;
+  --world-accent: #3b82f6;
+  --world-accent-subtle: #1e293b;
+  --world-accent-foreground: #ffffff;
+  --world-navy: #f3f4f6;
+  --world-bg: #0b0f19;
+  --world-border: #1e293b;
+}
+
+/* 2. Cricket World: Professional cricket journalism & editorial scoreboards */
+.world-cricket {
+  --world-accent: #047857;
+  --world-accent-subtle: #f0fdf4;
+  --world-accent-foreground: #ffffff;
+}
+
+.dark .world-cricket,
+.world-cricket.dark {
+  --world-accent: #10b981;
+  --world-accent-subtle: #064e3b;
+  --world-accent-foreground: #ffffff;
+}
+
+/* 3. Meme World: Casual, expressive, social, entertaining */
+.world-meme {
+  --world-accent: #d97706;
+  --world-accent-subtle: #fffbeb;
+  --world-accent-foreground: #ffffff;
+}
+
+.dark .world-meme,
+.world-meme.dark {
+  --world-accent: #f59e0b;
+  --world-accent-subtle: #451a03;
+  --world-accent-foreground: #ffffff;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }

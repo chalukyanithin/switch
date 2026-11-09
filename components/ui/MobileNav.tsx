@@ -32,10 +32,10 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   return (
     <>
       {/* Mobile Top Header */}
-      <header className="md:hidden sticky top-0 z-40 w-full bg-card/90 backdrop-blur-md border-b border-border px-4 py-2.5 flex items-center justify-between">
+      <header className="md:hidden sticky top-0 z-40 w-full bg-card border-b border-border px-4 py-2.5 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5">
-          <img src="/switch-logo-blue.png" alt="Switch" className="w-8 h-8 rounded-lg shadow-xs" />
-          <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-primary to-blue-700 bg-clip-text text-transparent">
+          <img src="/switch-logo-blue.png" alt="Switch" className="w-8 h-8 rounded-md border border-border" />
+          <span className="font-extrabold text-lg tracking-tight text-foreground">
             SWITCH
           </span>
         </Link>
@@ -67,7 +67,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
       </header>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-md border-t border-border px-2 py-1.5 flex items-center justify-around shadow-lg">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-card border-t border-border px-2 py-1.5 flex items-center justify-around shadow-sm">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
@@ -77,10 +77,10 @@ export const MobileNav: React.FC<MobileNavProps> = ({
               <Link
                 key={item.href}
                 href={item.href}
-                className="w-11 h-11 -mt-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/30 hover:scale-105 active:scale-95 transition-transform"
+                className="w-10 h-10 -mt-3 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-sm hover:scale-105 active:scale-95 transition-transform"
                 title="Create Post"
               >
-                <Plus className="w-6 h-6 stroke-[2.5]" />
+                <Plus className="w-5 h-5 stroke-[2.5]" />
               </Link>
             );
           }

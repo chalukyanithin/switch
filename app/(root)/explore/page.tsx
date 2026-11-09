@@ -1,162 +1,148 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import {
-  Compass, Sparkles, TrendingUp, Utensils, Palette, Code2, Music2, Dumbbell,
-  ArrowRight, Users, Star, Flame, Bookmark
+  Compass,
+  Sparkles,
+  Code2,
+  Trophy,
+  ArrowRight,
+  Flame,
+  Terminal,
+  Radio,
+  Layers,
 } from "lucide-react";
-import { WORLD_DEFINITIONS, INITIAL_SWITCH_POSTS } from "@/lib/data/worldsData";
+import { INITIAL_SWITCH_POSTS } from "@/lib/data/worldsData";
 import Card from "@/components/ui/Card";
 
-const WORLD_SHOWCASES = [
+const WORLD_PORTALS = [
   {
-    id: "Cooking",
-    title: "Cooking World",
-    tagline: "Artisanal Bakeries, Culinary Science & Recipe Cookbooks",
-    icon: Utensils,
-    color: "from-orange-500/20 to-amber-500/10",
-    border: "border-orange-500/30",
-    badge: "bg-orange-500 text-white",
-    description: "Explore authentic sourdough bread fermentation, Roman pasta traditions, and seasonal kitchen secrets.",
-    creatorCount: "12.4k Chefs",
-    postCount: "48k Recipes"
-  },
-  {
-    id: "Art",
-    title: "Art World",
-    tagline: "Galleries, Glazing Techniques & Atmospheric Studies",
-    icon: Palette,
-    color: "from-purple-500/20 to-indigo-500/10",
-    border: "border-purple-500/30",
-    badge: "bg-purple-600 text-white",
-    description: "From Belgian linen oil studies to procedural WebGL generative shaders, explore visual craft in detail.",
-    creatorCount: "8.9k Artists",
-    postCount: "32k Works"
-  },
-  {
-    id: "Technology",
+    id: "tech",
     title: "Technology World",
-    tagline: "Distributed Systems, Rust & Next-Gen Protocols",
+    slug: "/world/tech",
+    tagline: "Sandboxed Code Runner, Engineering Runtimes & Open Source",
     icon: Code2,
-    color: "from-cyan-500/20 to-blue-500/10",
-    border: "border-cyan-500/30",
-    badge: "bg-cyan-600 text-white",
-    description: "Deep dive into lock-free concurrency, open source engines, and micro-architecture engineering.",
-    creatorCount: "24.1k Engineers",
-    postCount: "94k Repos"
+    accentColor: "text-blue-600 dark:text-blue-400",
+    badgeBg: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800",
+    borderColor: "border-border hover:border-blue-300 dark:hover:border-blue-700",
+    description: "Write, test and run JavaScript & TypeScript in an isolated sandbox. Attach GitHub repositories, inspect memory footprints, and discuss systems architecture.",
+    stats: "V8 Sandbox • GitHub Integration",
+    features: ["Interactive Code Runner", "GitHub Repo Integration", "30s Audio Discussions"]
   },
   {
-    id: "Music",
-    title: "Music World",
-    tagline: "Modular Synthesis, Tape Saturation & Live Sessions",
-    icon: Music2,
-    color: "from-pink-500/20 to-rose-500/10",
-    border: "border-pink-500/30",
-    badge: "bg-pink-600 text-white",
-    description: "Listen to real reel-to-reel analog tape sessions, ambient synth patches, and underground performances.",
-    creatorCount: "6.7k Musicians",
-    postCount: "18k Tracks"
+    id: "meme",
+    title: "Meme World",
+    slug: "/world/meme",
+    tagline: "Canvas Meme Studio & Non-Destructive Remixes",
+    icon: Sparkles,
+    accentColor: "text-amber-600 dark:text-amber-400",
+    badgeBg: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800",
+    borderColor: "border-border hover:border-amber-300 dark:hover:border-amber-700",
+    description: "Instant in-browser meme studio. Select community templates, adjust captions, font sizes and stroke outlines, and publish new remixes non-destructively.",
+    stats: "Canvas Studio • Lineage Tracking",
+    features: ["Mini Meme Canvas Editor", "Lineage Tracking", "30s Voice Banter"]
   },
   {
-    id: "Fitness",
-    title: "Fitness World",
-    tagline: "Calisthenics Conditioning, Core Tension & Endurance",
-    icon: Dumbbell,
-    color: "from-emerald-500/20 to-teal-500/10",
-    border: "border-emerald-500/30",
-    badge: "bg-emerald-600 text-white",
-    description: "Strict gymnastics strength programming, aerobic engine building, and progressive movement protocols.",
-    creatorCount: "15.3k Athletes",
-    postCount: "52k Routines"
+    id: "cricket",
+    title: "Cricket World",
+    slug: "/world/cricket",
+    tagline: "Match Journalism, Scoreboards & Audio Crowd Notes",
+    icon: Trophy,
+    accentColor: "text-emerald-700 dark:text-emerald-400",
+    badgeBg: "bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800",
+    borderColor: "border-border hover:border-emerald-300 dark:hover:border-emerald-700",
+    description: "A tailored digital stadium for cricket fans. Follow simulated match scenarios, share tactical bowling analyses, and drop 30-second voice reactions.",
+    stats: "Simulated Match Center • 30s Audio Reactions",
+    features: ["Live Match Center", "30s Voice Commentary", "Tactical Discussions"]
   }
 ];
 
 export default function ExplorePage() {
-  const [selectedWorld, setSelectedWorld] = useState<string>("All");
-
-  const filteredPosts = INITIAL_SWITCH_POSTS.filter((p) => {
-    if (selectedWorld === "All") return true;
-    return p.world.toLowerCase() === selectedWorld.toLowerCase();
-  });
-
   return (
-    <div className="w-full space-y-8">
+    <div className="w-full space-y-8 pb-12">
       {/* Header */}
-      <div className="space-y-2">
+      <div className="space-y-2 border-b border-border pb-5">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-[#506ffc]/10 text-[#506ffc]">
-            <Compass className="w-7 h-7" />
+          <div className="p-2 rounded-md bg-primary/10 text-primary">
+            <Compass className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
               Explore Worlds
             </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Discover dedicated realms built specifically for your passions.
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Select a specialized world to enter its dedicated realm and tools.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Featured World Portals Grid */}
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-amber-500" />
-            <h2 className="font-bold text-sm text-gray-900 dark:text-white uppercase tracking-wider">
-              Specialized World Portals
-            </h2>
-          </div>
-          {selectedWorld !== "All" && (
-            <button
-              onClick={() => setSelectedWorld("All")}
-              className="text-xs font-bold text-[#506ffc] hover:underline cursor-pointer"
-            >
-              Reset to All Worlds
-            </button>
-          )}
+      {/* 3 Dedicated World Portals */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-3.5 h-3.5 text-primary" />
+          <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">
+            Available Worlds
+          </h2>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          {WORLD_SHOWCASES.map((world) => {
-            const Icon = world.icon;
-            const isSelected = selectedWorld.toLowerCase() === world.id.toLowerCase();
+        <div className="grid grid-cols-1 gap-4">
+          {WORLD_PORTALS.map((portal) => {
+            const Icon = portal.icon;
             return (
               <div
-                key={world.id}
-                onClick={() => setSelectedWorld(isSelected ? "All" : world.id)}
-                className={`p-4 rounded-2xl border transition-all cursor-pointer relative overflow-hidden group ${
-                  isSelected
-                    ? "border-[#506ffc] bg-blue-50/50 dark:bg-blue-950/30 ring-2 ring-[#506ffc]/30 shadow-md"
-                    : `bg-gradient-to-br ${world.color} border-gray-200/80 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 shadow-xs hover:shadow-md`
-                }`}
+                key={portal.id}
+                className={`p-5 rounded-lg border bg-card ${portal.borderColor} transition-colors relative overflow-hidden group`}
               >
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center gap-2.5">
-                    <div className="p-2 rounded-xl bg-white dark:bg-gray-800 shadow-xs">
-                      <Icon className="w-5 h-5 text-gray-900 dark:text-white" />
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-md bg-secondary border border-border">
+                      <Icon className={`w-5 h-5 ${portal.accentColor}`} />
                     </div>
                     <div>
-                      <h3 className="font-bold text-base text-gray-900 dark:text-white group-hover:text-[#506ffc] transition-colors">
-                        {world.title}
-                      </h3>
-                      <p className="text-[11px] text-gray-500 dark:text-gray-400">
-                        {world.creatorCount} • {world.postCount}
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-bold text-base sm:text-lg text-foreground">
+                          {portal.title}
+                        </h3>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-medium border ${portal.badgeBg}`}>
+                          ENTER WORLD
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {portal.tagline}
                       </p>
                     </div>
                   </div>
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${world.badge}`}>
-                    {isSelected ? "Active Filter" : "Enter"}
-                  </span>
+
+                  <Link
+                    href={portal.slug}
+                    className="px-4 py-2 rounded-md bg-primary hover:bg-primary/95 text-primary-foreground font-semibold text-xs flex items-center gap-1.5 transition-colors shrink-0"
+                  >
+                    <span>Enter {portal.title.replace(" World", "")}</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
                 </div>
 
-                <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed mb-3">
-                  {world.description}
+                <p className="text-xs sm:text-sm text-foreground/80 leading-relaxed mb-4 max-w-2xl">
+                  {portal.description}
                 </p>
 
-                <div className="flex items-center justify-between text-xs font-semibold text-[#506ffc] pt-2 border-t border-black/5 dark:border-white/5">
-                  <span>{isSelected ? "Showing this world below" : "Filter feed by this world"}</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                {/* Features & Stats row */}
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-border text-xs">
+                  <div className="flex flex-wrap gap-2">
+                    {portal.features.map((feat, i) => (
+                      <span
+                        key={i}
+                        className="px-2 py-0.5 rounded bg-secondary text-foreground text-[11px] font-medium border border-border"
+                      >
+                        ✓ {feat}
+                      </span>
+                    ))}
+                  </div>
+
+                  <span className="font-mono text-[11px] text-muted-foreground">
+                    {portal.stats}
+                  </span>
                 </div>
               </div>
             );
@@ -164,23 +150,22 @@ export default function ExplorePage() {
         </div>
       </section>
 
-      {/* Filter indicator */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-3">
+      {/* Collective Cross-World Stream */}
+      <section className="space-y-4 pt-4 border-t border-border">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-emerald-500" />
-            <h2 className="font-bold text-sm text-gray-900 dark:text-white uppercase tracking-wider">
-              {selectedWorld === "All" ? "Curated Feed Across All Worlds" : `Top Content in ${selectedWorld} World`}
+            <Layers className="w-4 h-4 text-muted-foreground" />
+            <h2 className="font-bold text-sm text-foreground uppercase tracking-wider">
+              Recent Highlights Across All Worlds
             </h2>
           </div>
-          <span className="text-xs text-gray-400 font-medium">
-            {filteredPosts.length} posts found
+          <span className="text-xs text-muted-foreground font-medium">
+            {INITIAL_SWITCH_POSTS.length} posts
           </span>
         </div>
 
-        {/* Content stream using specialized cards */}
-        <div className="space-y-6">
-          {filteredPosts.map((post) => (
+        <div className="space-y-5">
+          {INITIAL_SWITCH_POSTS.map((post) => (
             <Card key={post._id} thought={post} />
           ))}
         </div>
