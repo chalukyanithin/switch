@@ -1,6 +1,32 @@
 "use client";
 import React, { useState } from "react";
-import { Home, Search, Plus, Compass, User, Bell, MessageSquare, LogOut, LogIn, Globe2, Code2, Sparkles, Trophy, Bookmark, Users, Clock, Hash, Brain, BookOpen, ArrowLeft, ChevronDown } from "lucide-react";
+import {
+  Home,
+  Search,
+  Plus,
+  Compass,
+  User,
+  Bell,
+  MessageSquare,
+  LogOut,
+  LogIn,
+  Globe2,
+  Code2,
+  Sparkles,
+  Trophy,
+  Bookmark,
+  Users,
+  Clock,
+  Hash,
+  Brain,
+  BookOpen,
+  ArrowLeft,
+  ChevronDown,
+  Sprout,
+  Swords,
+  TrendingUp,
+  Layers,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
@@ -31,6 +57,7 @@ export const Sidebar: React.FC = () => {
 
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [messagesOpen, setMessagesOpen] = useState(false);
+  const [inviteCopied, setInviteCopied] = useState(false);
 
   // Hide sidebar completely on auth pages
   if (pathname === "/login" || pathname === "/signup") {
@@ -44,6 +71,109 @@ export const Sidebar: React.FC = () => {
       : `https://api.dicebear.com/7.x/adventurer/svg?seed=${user?.name || "Explorer"}`;
 
   const isTechWorld = pathname?.startsWith("/world/tech");
+  const isMemeWorld = pathname?.startsWith("/world/meme");
+
+  if (isMemeWorld) {
+    return (
+      <aside className="hidden md:flex flex-col h-full w-64 bg-white dark:bg-card border-r border-[#E2E8F0] dark:border-border p-4 justify-between transition-colors z-30 overflow-y-auto overflow-x-hidden custom-scrollbar overscroll-contain world-meme">
+        <div className="space-y-4 flex-1 pb-4">
+          {/* Active Meme World Badge */}
+          <Link
+            href="/world/meme"
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-[#2463D3] text-white font-bold text-xs shadow-xs"
+          >
+            <span className="text-base">😂</span>
+            <span className="font-extrabold tracking-wide">Meme World</span>
+          </Link>
+
+          {/* Navigation Links matching screenshot */}
+          <nav className="space-y-1 pt-2 border-t border-[#E2E8F0] dark:border-border">
+            {[
+              { label: "Home", icon: Home, href: "/world/meme" },
+              { label: "Trending", icon: TrendingUp, href: "/world/meme?tab=trending" },
+              { label: "Fresh Memes", icon: Sprout, href: "/world/meme?tab=fresh" },
+              { label: "Templates", icon: Layers, href: "/world/meme?tab=templates" },
+              { label: "Collections", icon: Bookmark, href: "/world/meme?tab=collections" },
+              { label: "Meme Battles", icon: Swords, href: "/world/meme?tab=battles" },
+            ].map((item, idx) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={idx}
+                  href={item.href}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-colors ${
+                    idx === 0
+                      ? "bg-blue-50 text-[#2463D3] dark:bg-blue-950/40 dark:text-blue-300"
+                      : "text-muted-foreground hover:text-[#17243A] dark:hover:text-white hover:bg-[#F8FAFC] dark:hover:bg-secondary/40"
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Bottom Section: Invite a Memer + Theme Toggle & Profile */}
+        <div className="space-y-3 pt-2">
+          {/* Card: Invite a Memer matching screenshot */}
+          <div className="p-3.5 rounded-2xl border border-dashed border-blue-200 dark:border-blue-900/60 bg-blue-50/40 dark:bg-blue-950/20 text-center flex flex-col items-center gap-2">
+            {/* Doge cartoon illustration with pixel sunglasses */}
+            <div className="w-12 h-12 flex items-center justify-center">
+              <span className="text-3xl select-none filter drop-shadow-xs">🐕</span>
+            </div>
+            <div className="space-y-0.5">
+              <h4 className="font-extrabold text-xs text-[#17243A] dark:text-white">
+                Invite a Memer
+              </h4>
+              <p className="text-[10px] text-muted-foreground font-medium">
+                More memers, more chaos!
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                if (navigator.clipboard) {
+                  navigator.clipboard.writeText(
+                    typeof window !== "undefined"
+                      ? `${window.location.origin}/world/meme`
+                      : "https://switch.social/world/meme"
+                  );
+                  setInviteCopied(true);
+                  setTimeout(() => setInviteCopied(false), 2000);
+                }
+              }}
+              className="w-full py-1.5 px-4 rounded-xl bg-[#2463D3] hover:bg-[#2463D3]/90 text-white font-bold text-xs transition-all shadow-xs cursor-pointer active:scale-95"
+            >
+              {inviteCopied ? "Link Copied! ✓" : "Invite"}
+            </button>
+          </div>
+
+          {/* Dark Mode & Light Mode Toggle + Profile Status */}
+          <div className="pt-3 border-t border-[#E2E8F0] dark:border-border flex items-center justify-between">
+            <Link href="/profile" className="flex items-center gap-2.5 overflow-hidden group">
+              <img
+                src={userPhoto}
+                alt={user?.name || "Profile"}
+                className="w-8 h-8 rounded-full object-cover border border-border shrink-0"
+              />
+              <div className="overflow-hidden">
+                <p className="font-bold text-xs text-[#17243A] dark:text-white truncate group-hover:text-[#2463D3] transition-colors">
+                  {user?.name || "You"}
+                </p>
+                <p className="text-[10px] text-muted-foreground truncate font-mono">
+                  {user?.email || "@memer"}
+                </p>
+              </div>
+            </Link>
+            <div className="scale-90 origin-right">
+              <DarkSwitch />
+            </div>
+          </div>
+        </div>
+      </aside>
+    );
+  }
 
   if (isTechWorld) {
     return (

@@ -7,6 +7,7 @@ import { TrendingUp, Users, Sparkles, Check, Plus, ExternalLink, Globe2, BookOpe
 import { useActiveWorld } from "../ActiveWorldContext";
 import { WORLD_DEFINITIONS } from "@/lib/data/worldsData";
 import TechRightBar from "../worlds/tech/TechRightBar";
+import MemeRightBar from "../worlds/meme/MemeRightBar";
 
 interface CreatorSuggestion {
   id: string;
@@ -191,6 +192,10 @@ export const RightBar: React.FC = () => {
 
   if (effectiveWorld === "Technology") {
     return <TechRightBar />;
+  }
+
+  if (effectiveWorld === "Meme") {
+    return <MemeRightBar />;
   }
 
   return (

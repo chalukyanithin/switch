@@ -54,8 +54,19 @@ export interface MemeLayer {
   isAllCaps: boolean;
 }
 
+export interface MemeReactionCounts {
+  dead?: number; // 💀 I'm Dead
+  banger?: number; // 😂 Certified Banger
+  clown?: number; // 🤡 Clown Moment
+  cinema?: number; // 🗿 Absolute Cinema
+  tooReal?: number; // 🫠 Too Real
+  cooking?: number; // 🔥 Cooking
+}
+
 export interface MemeMetadata {
   isTemplate: boolean;
+  category?: string; // "Relatable" | "Office" | "College" | "Indian" | "Templates" | "Gaming" | "Dark Humor"
+  tags?: string[];
   parentMemeId?: string;
   originalAuthor?: string;
   remixCount?: number;
@@ -63,6 +74,11 @@ export interface MemeMetadata {
   canvasWidth?: number;
   canvasHeight?: number;
   layers?: MemeLayer[];
+  upvotes?: number;
+  downvotes?: number;
+  reactions?: MemeReactionCounts;
+  userReaction?: string;
+  checklist?: string[]; // for checklist style overlay
 }
 
 export interface CricketMetadata {
@@ -93,6 +109,262 @@ export interface SwitchPost {
 }
 
 export const INITIAL_SWITCH_POSTS: SwitchPost[] = [
+  // 0. User-Uploaded Meme 1 - 3 Donuts Left (Child behind me / Me / Shopkeeper)
+  {
+    _id: "meme-donuts-shopkeeper",
+    world: "Meme",
+    author: {
+      _id: "user-thecringe-tv",
+      username: "thecringe_tv",
+      photo: "https://api.dicebear.com/7.x/bottts/svg?seed=thecringe_tv",
+      bio: "Cringe is an art form. We specialize in pure chaos.",
+      verified: true,
+    },
+    content: "Child behind me: \"Mom, only 3 donuts are left\"\n\nMe: 3 donuts please*\n\nShopkeeper:",
+    image: "/meme-donuts.png",
+    createdAt: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
+    likes: Array(5080).fill("like-user"),
+    sharesCount: 113,
+    comments: [
+      {
+        _id: "c-donuts-1",
+        author: {
+          _id: "user-bakery-kid",
+          username: "donut_thief",
+          photo: "https://api.dicebear.com/7.x/adventurer/svg?seed=donut_thief",
+        },
+        text: "The eye contact with the kid while taking the box was personal 💀😭",
+        createdAt: "10 mins ago",
+      },
+      {
+        _id: "c-donuts-2",
+        author: {
+          _id: "user-shopkeeper",
+          username: "sweet_tooth",
+          photo: "https://api.dicebear.com/7.x/adventurer/svg?seed=sweet_tooth",
+        },
+        text: "Shopkeeper silently respecting the ruthlessness while sliding the tray 😂",
+        createdAt: "5 mins ago",
+      },
+    ],
+    meme: {
+      isTemplate: true,
+      category: "Relatable",
+      tags: ["Relatable", "Food", "Chaos", "Savage"],
+      upvotes: 5080,
+      downvotes: 18,
+      reactions: {
+        dead: 3620,
+        tooReal: 850,
+        banger: 520,
+        cinema: 90,
+      },
+      templateImageUrl: "/meme-donuts.png",
+    },
+  },
+
+  // 0b. User-Uploaded Meme 2 - Existential Doge ("At a point in life...")
+  {
+    _id: "meme-at-a-point",
+    world: "Meme",
+    author: {
+      _id: "user-existential-doge",
+      username: "daily.doge",
+      photo: "https://api.dicebear.com/7.x/adventurer/svg?seed=dailydoge",
+      bio: "Much philosophic. Very point. Wow.",
+      verified: true,
+    },
+    content: "I'm at a point in my life where I don't even know the point I'm at, but I'm at a point",
+    image: "/meme-at-a-point.jpg",
+    createdAt: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
+    likes: Array(4890).fill("like-user"),
+    sharesCount: 382,
+    comments: [
+      {
+        _id: "c-point-1",
+        author: {
+          _id: "user-coder99",
+          username: "sleepycoder",
+          photo: "https://api.dicebear.com/7.x/adventurer/svg?seed=sleepycoder",
+        },
+        text: "That little dog staring at the ceiling has seen the source code of reality 🫠",
+        createdAt: "30 mins ago",
+      },
+      {
+        _id: "c-point-2",
+        author: {
+          _id: "user-nihilist",
+          username: "zen_master",
+          photo: "https://api.dicebear.com/7.x/adventurer/svg?seed=zen_master",
+        },
+        text: "At least we agree there is a point. That's progress. 🗿",
+        createdAt: "15 mins ago",
+      },
+    ],
+    meme: {
+      isTemplate: true,
+      category: "Relatable",
+      tags: ["Relatable", "Existential", "Mood", "Life"],
+      upvotes: 4890,
+      downvotes: 11,
+      reactions: {
+        tooReal: 3100,
+        dead: 1200,
+        banger: 420,
+        cinema: 170,
+      },
+      templateImageUrl: "/meme-at-a-point.jpg",
+    },
+  },
+
+  // 0a. Meme World - Quick Fix at 5:45 PM (Exact Screenshot Post)
+  {
+    _id: "meme-quick-fix",
+    world: "Meme",
+    author: {
+      _id: "user-meme-eng",
+      username: "meme.engineer",
+      photo: "https://api.dicebear.com/7.x/bottts/svg?seed=memeengineer",
+      bio: "Senior Architect of Chaos & Deploy Panic",
+      verified: true,
+    },
+    content: "When your manager says \"it's a quick fix\" at 5:45 PM",
+    image: "https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?auto=format&fit=crop&w=1200&q=80",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
+    likes: Array(2400).fill("like-user"),
+    sharesCount: 340,
+    comments: Array(87).fill({
+      _id: "c-qfix",
+      author: {
+        _id: "user-sleepycoder",
+        username: "sleepycoder",
+        photo: "https://api.dicebear.com/7.x/adventurer/svg?seed=sleepycoder",
+      },
+      text: "The 'regret life' phase hits hardest at 9:30 PM 💀",
+      createdAt: "4 hours ago",
+    }),
+    meme: {
+      isTemplate: true,
+      category: "Office",
+      tags: ["Office", "Relatable", "Engineering"],
+      upvotes: 2400,
+      downvotes: 12,
+      checklist: [
+        "Reproduce",
+        "Debug",
+        "Read docs",
+        "Regret life",
+        "Push by 11:59 PM"
+      ],
+      reactions: {
+        dead: 1420,
+        tooReal: 630,
+        banger: 310,
+        cinema: 80,
+      },
+      templateImageUrl: "https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?auto=format&fit=crop&w=1200&q=80",
+      layers: [
+        {
+          id: "mfix-1",
+          text: "THE FIX:",
+          x: 200,
+          y: 60,
+          fontSize: 24,
+          fontFamily: "Impact",
+          fillColor: "#ffffff",
+          strokeColor: "#000000",
+          strokeWidth: 3,
+          rotation: 0,
+          isAllCaps: true,
+        }
+      ]
+    }
+  },
+
+  // 0b. Meme World - Ronin Memer (Screenshot Post 2)
+  {
+    _id: "meme-ronin-doge",
+    world: "Meme",
+    author: {
+      _id: "user-ronin-memer",
+      username: "ronin.memer",
+      photo: "https://api.dicebear.com/7.x/bottts/svg?seed=roninmemer",
+      bio: "Full-time overthinker, part-time meme curator.",
+      verified: false,
+    },
+    content: "Me explaining to my parents why staying awake till 4 AM reading Wikipedia articles about the Byzantine Empire is critical for my long-term career strategy.",
+    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=80",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+    likes: Array(1820).fill("like-user"),
+    sharesCount: 195,
+    comments: Array(42).fill({
+      _id: "c-ronin",
+      author: {
+        _id: "user-daily-doge",
+        username: "daily.doge",
+        photo: "https://api.dicebear.com/7.x/adventurer/svg?seed=dailydoge",
+      },
+      text: "Can confirm, Fall of Constantinople knowledge is an interview question.",
+      createdAt: "18 hours ago",
+    }),
+    meme: {
+      isTemplate: true,
+      category: "Relatable",
+      tags: ["Relatable", "College", "LateNight"],
+      upvotes: 1820,
+      downvotes: 8,
+      reactions: {
+        cinema: 890,
+        dead: 540,
+        banger: 310,
+        tooReal: 210,
+      },
+      templateImageUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=80",
+    }
+  },
+
+  // 0c. Meme World - Meme of the Day (R. Madhavan 3 Idiots)
+  {
+    _id: "meme-madhavan-motd",
+    world: "Meme",
+    author: {
+      _id: "user-desi-humor",
+      username: "desi.banter",
+      photo: "https://api.dicebear.com/7.x/adventurer/svg?seed=desibanter",
+      bio: "Certified Desi Shitposter 🇮🇳",
+      verified: true,
+    },
+    content: "Aaj kuch productive nahi karenge. Brain is currently running on low battery mode.",
+    image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=80",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
+    likes: Array(3450).fill("like-user"),
+    sharesCount: 512,
+    comments: Array(128).fill({
+      _id: "c-motd",
+      author: {
+        _id: "user-alex",
+        username: "alex_dev",
+        photo: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&h=300&q=80",
+      },
+      text: "Permanent state of mind during sprint retrospective.",
+      createdAt: "2 hours ago",
+    }),
+    meme: {
+      isTemplate: true,
+      category: "Indian",
+      tags: ["Indian", "Relatable", "MemeOfTheDay"],
+      upvotes: 3450,
+      downvotes: 14,
+      reactions: {
+        tooReal: 1890,
+        cinema: 820,
+        banger: 640,
+        cooking: 210,
+      },
+      templateImageUrl: "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=80",
+    }
+  },
+
   // 0. Technology World - Copy-on-Write during fork() (Screenshot Feature Post)
   {
     _id: "tech-cow-fork",

@@ -42,6 +42,11 @@ import { useSession } from "next-auth/react";
 import { INITIAL_SWITCH_POSTS, SwitchPost } from "@/lib/data/worldsData";
 import Card from "@/components/ui/Card";
 import MemeEditorModal from "@/components/worlds/MemeEditorModal";
+import MemeHeroBanner from "@/components/worlds/meme/MemeHeroBanner";
+import MemeBattlesSection from "@/components/worlds/meme/MemeBattlesSection";
+import MemeTemplatesSection, { MemeTemplateItem } from "@/components/worlds/meme/MemeTemplatesSection";
+import MemeCreateModal from "@/components/worlds/meme/MemeCreateModal";
+import MemeRightBar from "@/components/worlds/meme/MemeRightBar";
 import AudioCommentRecorder from "@/components/ui/AudioCommentRecorder";
 import { addAudioComment } from "@/lib/actions/thought.actions";
 import TechComposer, { TECH_TOPICS } from "@/components/worlds/TechComposer";
@@ -68,7 +73,11 @@ export default function DedicatedWorldPage({ params }: WorldPageProps) {
   }
 
   if (normalizedId === "meme" || normalizedId === "memes") {
-    return <MemeWorldView />;
+    return (
+      <Suspense fallback={<div className="p-8 text-center text-xs text-muted-foreground font-mono">Loading Meme World...</div>}>
+        <MemeWorldView />
+      </Suspense>
+    );
   }
 
   if (normalizedId === "cricket") {
@@ -657,129 +666,211 @@ benchmarkRingBuffer(1000000);`
 }
 
 // =========================================================================
-// 2. MEME WORLD VIEW (Creative Studio & Canvas Remix Engine)
+// 2. MEME WORLD VIEW (Creative Studio & Community Playground)
 // =========================================================================
 function MemeWorldView() {
-  const [selectedTemplateForRemix, setSelectedTemplateForRemix] = useState<SwitchPost | null>(null);
-  const [activeTab, setActiveTab] = useState<"feed" | "templates">("feed");
+  const searchParams = useSearchParams();
+  const tabParam = searchParams?.get("tab");
 
-  const posts = INITIAL_SWITCH_POSTS.filter(
-    (p) => p.world.toLowerCase() === "meme"
+  const [activeTab, setActiveTab] = useState<string>("home");
+  const [activeCategory, setActiveCategory] = useState<string>("For You");
+  const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
+  const [selectedTemplateForCreate, setSelectedTemplateForCreate] = useState<MemeTemplateItem | null>(null);
+
+  const [allMemePosts, setAllMemePosts] = useState<SwitchPost[]>(() =>
+    INITIAL_SWITCH_POSTS.filter((p) => p.world.toLowerCase() === "meme")
   );
 
+  useEffect(() => {
+    if (tabParam) {
+      if (tabParam === "trending") {
+        setActiveTab("home");
+        setActiveCategory("Trending");
+      } else if (tabParam === "fresh") {
+        setActiveTab("home");
+        setActiveCategory("Fresh Memes");
+      } else if (tabParam === "templates") {
+        setActiveTab("templates");
+      } else if (tabParam === "battles") {
+        setActiveTab("battles");
+      } else if (tabParam === "collections") {
+        setActiveTab("collections");
+      } else {
+        setActiveTab(tabParam);
+      }
+    } else {
+      setActiveTab("home");
+    }
+  }, [tabParam]);
+
+  const CATEGORY_TABS = [
+    { id: "For You", label: "For You", icon: "⭐" },
+    { id: "Trending", label: "Trending", icon: "🔥" },
+    { id: "Relatable", label: "Relatable", icon: "👤" },
+    { id: "Office", label: "Office", icon: "💼" },
+    { id: "College", label: "College", icon: "🎓" },
+    { id: "Indian", label: "Indian", icon: "🇮🇳" },
+    { id: "Templates", label: "Templates", icon: "📑" },
+  ];
+
+  const filteredPosts = allMemePosts.filter((post) => {
+    if (activeCategory === "For You" || activeCategory === "Trending" || activeCategory === "Fresh Memes") {
+      return true;
+    }
+    const cat = post.meme?.category?.toLowerCase() || "";
+    const tags = (post.meme?.tags || []).map((t) => t.toLowerCase());
+    return cat.includes(activeCategory.toLowerCase()) || tags.includes(activeCategory.toLowerCase());
+  }).sort((a, b) => {
+    if (activeCategory === "Trending") {
+      return (b.meme?.upvotes || 0) - (a.meme?.upvotes || 0);
+    }
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+
   return (
-    <div className="world-meme w-full space-y-4 pb-12 animate-in fade-in duration-150">
-      {/* Seamless World Navigation Header */}
-      <WorldNavigationHeader currentWorld="Meme" />
-
-      {/* Editorial Meme Banner */}
-      <div className="rounded-lg border border-border bg-card p-5 sm:p-6 space-y-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2.5">
-              <span className="p-2 rounded-md bg-amber-50 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-900/40">
-                <Sparkles className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-              </span>
-              <div>
-                <h1 className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">
-                  Memes
-                </h1>
-                <p className="text-xs font-mono text-muted-foreground">
-                  templates // canvas // remixes
-                </p>
-              </div>
-            </div>
-            <p className="text-xs sm:text-sm text-muted-foreground max-w-xl leading-relaxed pt-1">
-              Cultural humor and expressive formats. Select community templates, apply live canvas captions, and publish credited remixes.
-            </p>
-          </div>
-
-          <button
-            onClick={() => setSelectedTemplateForRemix(posts[0])}
-            className="px-3.5 py-1.5 rounded-md bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
-          >
-            <GitFork className="w-3.5 h-3.5" />
-            <span>Open Meme Editor</span>
-          </button>
-        </div>
-
-        {/* Structured Capability Metrics */}
-        <div className="grid grid-cols-3 gap-3 pt-3 border-t border-border text-xs">
-          <div>
-            <div className="font-bold text-foreground text-sm">{posts.length} Templates</div>
-            <div className="text-muted-foreground text-[11px]">Ready in Studio</div>
-          </div>
-          <div>
-            <div className="font-bold text-foreground text-sm">Canvas Engine</div>
-            <div className="text-muted-foreground text-[11px]">Client Text Overlays</div>
-          </div>
-          <div>
-            <div className="font-bold text-foreground text-sm">30s Audio</div>
-            <div className="text-muted-foreground text-[11px]">Voice Note Banter</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Featured Template Strip */}
-      <div className="p-3.5 rounded-lg bg-card border border-border space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
-            <Flame className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-            <span>Pick a Template to Remix</span>
-          </span>
-          <span className="text-[11px] text-muted-foreground">Click template to launch canvas editor</span>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          {posts.map((post) => (
-            <div
-              key={post._id}
-              onClick={() => setSelectedTemplateForRemix(post)}
-              className="group p-2 rounded-md bg-secondary/50 hover:bg-secondary border border-border hover:border-amber-400/50 transition-colors cursor-pointer space-y-1.5"
-            >
-              <div className="relative aspect-video rounded overflow-hidden bg-black/90">
-                <img
-                  src={post.image}
-                  alt={post.content}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                />
-                <span className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-black/80 text-amber-400 text-[10px] font-mono font-semibold">
-                  {post.meme?.remixCount || 0} remixes
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-medium text-foreground truncate max-w-[130px]">
-                  {post.content.slice(0, 26)}...
-                </span>
-                <span className="text-amber-700 dark:text-amber-400 font-semibold text-[11px] flex items-center gap-1 shrink-0">
-                  <GitFork className="w-3 h-3" />
-                  <span>Remix</span>
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Meme Stream */}
-      <div className="space-y-4">
-        {posts.map((post) => (
-          <Card key={post._id} thought={post} />
-        ))}
-      </div>
-
-      {/* Mini Meme Editor Modal */}
-      {selectedTemplateForRemix && (
-        <MemeEditorModal
-          templatePost={selectedTemplateForRemix}
-          isOpen={!!selectedTemplateForRemix}
-          onClose={() => setSelectedTemplateForRemix(null)}
-          onPublished={() => {
-            setSelectedTemplateForRemix(null);
-            window.location.reload();
+    <div className="world-meme w-full space-y-6 pb-12 animate-in fade-in duration-150">
+      {/* 1. Main Cover Banner on Top of Meme World (Spans Full Width across feed & right bar) */}
+      {activeTab === "home" && (
+        <MemeHeroBanner
+          onCreateMeme={() => {
+            setSelectedTemplateForCreate(null);
+            setShowCreateModal(true);
           }}
+          onScrollToFeed={() => {}}
         />
       )}
+
+      {/* 2. Main Content & Right Column Area (Positioned cleanly below the wide Cover Banner) */}
+      <div className="flex flex-col xl:flex-row gap-6 items-start">
+        {/* Left Column: Category Filter Pills + Meme Feed / Specialized Sections (Constrained so cards don't stretch) */}
+        <div className="w-full xl:max-w-[580px] flex-1 min-w-0 space-y-4">
+          {/* Category Filter Pills */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+            {CATEGORY_TABS.map((tab) => {
+              const isActive = activeTab === "home" && activeCategory === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    if (tab.id === "Templates") {
+                      setActiveTab("templates");
+                    } else {
+                      setActiveTab("home");
+                      setActiveCategory(tab.id);
+                    }
+                  }}
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                    isActive
+                      ? "bg-[#2463D3] text-white shadow-xs"
+                      : "bg-white dark:bg-card border border-[#E2E8F0] dark:border-border text-muted-foreground hover:text-foreground hover:border-[#2463D3]"
+                  }`}
+                >
+                  <span>{tab.icon}</span>
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+
+            <button
+              onClick={() => setActiveCategory("Office")}
+              className="p-1.5 rounded-full border border-[#E2E8F0] dark:border-border bg-white dark:bg-card text-muted-foreground hover:text-foreground hover:border-[#2463D3] cursor-pointer shrink-0"
+              title="See more categories"
+            >
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Section Dispatcher */}
+          {activeTab === "home" && (
+            <div className="space-y-4 pt-1">
+              {filteredPosts.length === 0 ? (
+                <div className="p-8 text-center bg-white dark:bg-card rounded-2xl border border-[#E2E8F0] dark:border-border space-y-3">
+                  <span className="text-3xl">🐱💤</span>
+                  <div>
+                    <h3 className="font-bold text-[#17243A] dark:text-white text-sm">
+                      Nothing here yet. Even the memes are taking a break.
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Be the first to post a meme in #{activeCategory}!
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowCreateModal(true)}
+                    className="px-4 py-2 rounded-xl bg-[#2463D3] text-white font-bold text-xs cursor-pointer"
+                  >
+                    Create First Meme
+                  </button>
+                </div>
+              ) : (
+                filteredPosts.map((post) => (
+                  <Card key={post._id} thought={post} />
+                ))
+              )}
+            </div>
+          )}
+
+          {/* Meme Battles */}
+          {activeTab === "battles" && (
+            <MemeBattlesSection
+              onSubmitEntry={() => {
+                setSelectedTemplateForCreate(null);
+                setShowCreateModal(true);
+              }}
+            />
+          )}
+
+          {/* Templates Studio */}
+          {activeTab === "templates" && (
+            <MemeTemplatesSection
+              onSelectTemplate={(tpl) => {
+                setSelectedTemplateForCreate(tpl);
+                setShowCreateModal(true);
+              }}
+            />
+          )}
+
+          {/* Collections View */}
+          {activeTab === "collections" && (
+            <div className="space-y-4">
+              <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-card border border-[#E2E8F0] dark:border-border space-y-1.5 shadow-xs">
+                <h2 className="font-extrabold text-base sm:text-lg text-[#17243A] dark:text-white">
+                  Your Saved Bangers 🔖
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  Memes you bookmarked for emergency laughter during meetings.
+                </p>
+              </div>
+              <div className="space-y-4">
+                {allMemePosts.slice(0, 2).map((post) => (
+                  <Card key={`saved-${post._id}`} thought={post} />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Right Column: MemeRightBar (Curated Meme of Day, Challenge & Leaderboard below the wide Cover Banner) */}
+        <aside className="hidden xl:block w-80 shrink-0 sticky top-20">
+          <MemeRightBar
+            onOpenCreate={() => {
+              setSelectedTemplateForCreate(null);
+              setShowCreateModal(true);
+            }}
+            onOpenBattles={() => setActiveTab("battles")}
+          />
+        </aside>
+      </div>
+
+      {/* Meme Creation Modal */}
+      <MemeCreateModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        initialTemplate={selectedTemplateForCreate}
+        initialCategory={activeCategory !== "For You" && activeCategory !== "Trending" ? activeCategory : "Office"}
+        onPublished={(newPost) => {
+          setAllMemePosts((prev) => [newPost, ...prev]);
+        }}
+      />
     </div>
   );
 }
