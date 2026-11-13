@@ -60,7 +60,7 @@ export const HomeFeed: React.FC<HomeFeedProps> = ({ initialThoughts }) => {
 
       {/* World-Specific Banner */}
       {activeWorld !== "All" && (
-        <div className="p-4 sm:p-5 rounded-lg bg-card border border-border space-y-3 animate-in fade-in duration-150">
+        <div className="switch-card p-5 sm:p-6 space-y-3 animate-in fade-in duration-150">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-md bg-secondary text-foreground">

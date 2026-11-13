@@ -176,7 +176,7 @@ export const TechCard: React.FC<TechCardProps> = ({
   const postBody = hasTitle ? contentParts.slice(1).join("\n\n") : post.content;
 
   return (
-    <article className="world-tech w-full bg-white dark:bg-card rounded-xl border border-[#E2E8F0] dark:border-border transition-colors overflow-hidden">
+    <article className="world-tech switch-card w-full">
       {/* Header matching screenshot */}
       <div className="flex items-center justify-between p-4 sm:p-5 border-b border-[#E2E8F0] dark:border-border bg-white dark:bg-card">
         <div className="flex items-center gap-3">

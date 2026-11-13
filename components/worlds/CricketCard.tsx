@@ -76,7 +76,7 @@ export const CricketCard: React.FC<CricketCardProps> = ({
   };
 
   return (
-    <article className="world-cricket w-full bg-card rounded-lg border border-border transition-colors overflow-hidden">
+    <article className="world-cricket switch-card w-full">
       {/* Header */}
       <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border bg-card">
         <div className="flex items-center gap-3">

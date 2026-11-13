@@ -19,7 +19,7 @@ export const MemeRightBar: React.FC<MemeRightBarProps> = ({
   return (
     <div className="w-full space-y-4 p-4 sm:p-5 text-sm overflow-y-auto max-h-screen no-scrollbar world-meme">
       {/* 1. Meme of the Day (Pixel-Matched to Screenshot) */}
-      <div className="p-4 rounded-xl bg-white dark:bg-card border border-[#E2E8F0] dark:border-border space-y-3 shadow-xs">
+      <div className="switch-card-sm p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="font-extrabold text-sm text-[#17243A] dark:text-white">
@@ -72,7 +72,7 @@ export const MemeRightBar: React.FC<MemeRightBarProps> = ({
       </div>
 
       {/* 2. This Week's Challenge Card (Pixel-Matched to Screenshot) */}
-      <div className="p-4 rounded-xl bg-white dark:bg-card border border-[#E2E8F0] dark:border-border space-y-3 shadow-xs">
+      <div className="switch-card-sm p-4 space-y-3">
         <div className="flex items-center gap-1.5">
           <h3 className="font-bold text-sm text-[#17243A] dark:text-white">
             This Week&apos;s Challenge
@@ -118,7 +118,7 @@ export const MemeRightBar: React.FC<MemeRightBarProps> = ({
       </div>
 
       {/* 3. Meme Leaderboard (Pixel-Matched to Screenshot) */}
-      <div className="p-4 rounded-xl bg-white dark:bg-card border border-[#E2E8F0] dark:border-border space-y-3 shadow-xs">
+      <div className="switch-card-sm p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <h3 className="font-bold text-sm text-[#17243A] dark:text-white">

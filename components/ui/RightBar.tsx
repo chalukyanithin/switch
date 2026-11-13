@@ -201,7 +201,7 @@ export const RightBar: React.FC = () => {
   return (
     <div className={`w-full space-y-3.5 p-4 sm:p-5 text-sm overflow-y-auto max-h-screen no-scrollbar ${worldClass}`}>
       {/* Contextual World Header */}
-      <div className="p-3.5 rounded-lg bg-card border border-border space-y-2.5">
+      <div className="switch-card-sm p-4 space-y-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-primary" />
@@ -274,7 +274,7 @@ export const RightBar: React.FC = () => {
       </div>
 
       {/* Contextual Recommendation */}
-      <div className="p-3.5 rounded-lg bg-card border border-border space-y-2">
+      <div className="switch-card-sm p-4 space-y-2">
         <div className="flex items-center gap-1.5 text-primary text-xs font-bold uppercase tracking-wider">
           <BookOpen className="w-3.5 h-3.5" />
           <span>{recommendation.title}</span>
@@ -291,7 +291,7 @@ export const RightBar: React.FC = () => {
       </div>
 
       {/* Trending Topics Contextual to Current World */}
-      <div className="bg-card rounded-lg border border-border p-3.5 space-y-3">
+      <div className="switch-card-sm p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-primary" />
@@ -318,7 +318,7 @@ export const RightBar: React.FC = () => {
       </div>
 
       {/* Contextual Creators for Current World */}
-      <div className="bg-card rounded-lg border border-border p-3.5 space-y-3">
+      <div className="switch-card-sm p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Users className="w-4 h-4 text-primary" />

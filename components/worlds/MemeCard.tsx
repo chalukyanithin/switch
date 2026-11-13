@@ -133,7 +133,7 @@ export const MemeCard: React.FC<MemeCardProps> = ({
 
   return (
     <>
-      <article className="world-meme w-full bg-white dark:bg-card rounded-2xl border border-[#E2E8F0] dark:border-border transition-colors overflow-hidden shadow-xs hover:shadow-sm">
+      <article className="world-meme switch-card w-full">
         {/* Header Matching Screenshot */}
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-[#E2E8F0] dark:border-border">
           <div className="flex items-center gap-3">

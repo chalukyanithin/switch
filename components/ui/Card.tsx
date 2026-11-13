@@ -153,7 +153,7 @@ const StandardCard: React.FC<{ thought: any; currentUserId: string; onShare: (t:
       : `https://api.dicebear.com/7.x/adventurer/svg?seed=${thought.author?.username || "SwitchUser"}`;
 
   return (
-    <article className="w-full bg-card rounded-lg border border-border transition-colors overflow-hidden">
+    <article className="switch-card w-full">
       {/* Header */}
       <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border">
         <div className="flex items-center gap-3">

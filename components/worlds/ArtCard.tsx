@@ -63,7 +63,7 @@ export const ArtCard: React.FC<ArtCardProps> = ({
   };
 
   return (
-    <article className="w-full bg-card rounded-2xl border border-border shadow-xs hover:shadow-md transition-shadow overflow-hidden flex flex-col h-full">
+    <article className="switch-card w-full flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border">
         <div className="flex items-center gap-3">

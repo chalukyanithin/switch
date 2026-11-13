@@ -92,7 +92,7 @@ export default function ExplorePage() {
             return (
               <div
                 key={portal.id}
-                className={`p-5 rounded-lg border bg-card ${portal.borderColor} transition-colors relative overflow-hidden group`}
+                className={`switch-card p-6 ${portal.borderColor} relative group`}
               >
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-3">
                   <div className="flex items-center gap-3">

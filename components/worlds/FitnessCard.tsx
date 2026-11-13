@@ -68,7 +68,7 @@ export const FitnessCard: React.FC<FitnessCardProps> = ({
   };
 
   return (
-    <article className="w-full bg-card rounded-2xl border border-border shadow-xs hover:shadow-md transition-shadow overflow-hidden">
+    <article className="switch-card w-full">
       {/* Header */}
       <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border">
         <div className="flex items-center gap-3">

@@ -68,7 +68,7 @@ export const TechRightBar: React.FC<TechRightBarProps> = ({
   return (
     <div className="w-full space-y-4 p-4 sm:p-5 text-sm overflow-y-auto max-h-screen no-scrollbar world-tech">
       {/* 1. Explore Topics (2-Column Grid matching screenshot) */}
-      <div className="p-4 rounded-xl bg-white dark:bg-card border border-[#E2E8F0] dark:border-border space-y-3">
+      <div className="switch-card-sm p-4 space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-sm text-[#17243A] dark:text-white">
             Explore topics
@@ -120,7 +120,7 @@ export const TechRightBar: React.FC<TechRightBarProps> = ({
       </div>
 
       {/* 2. Daily Quiz Streak Card (Matching screenshot) */}
-      <div className="p-4 rounded-xl bg-white dark:bg-card border border-[#E2E8F0] dark:border-border space-y-3">
+      <div className="switch-card-sm p-4 space-y-3">
         <div className="flex items-center gap-1.5">
           <Flame className="w-4 h-4 text-amber-500 fill-current" />
           <h3 className="font-bold text-xs uppercase tracking-wider text-[#17243A] dark:text-white">
@@ -170,7 +170,7 @@ export const TechRightBar: React.FC<TechRightBarProps> = ({
       </div>
 
       {/* 3. Trending Discussions (Matching screenshot) */}
-      <div className="p-4 rounded-xl bg-white dark:bg-card border border-[#E2E8F0] dark:border-border space-y-3">
+      <div className="switch-card-sm p-4 space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-sm text-[#17243A] dark:text-white">
             Trending Discussions
