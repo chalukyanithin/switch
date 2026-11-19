@@ -32,7 +32,10 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   return (
     <>
       {/* Mobile Top Header */}
-      <header className="md:hidden sticky top-0 z-40 w-full bg-card border-b border-border px-4 py-2.5 flex items-center justify-between">
+      <header
+        className="md:hidden sticky top-0 z-40 w-full bg-card border-b border-border px-4 py-2.5 flex items-center justify-between"
+        style={{ paddingTop: "max(0.625rem, env(safe-area-inset-top))" }}
+      >
         <Link href="/" className="flex items-center gap-2.5">
           <img src="/switch-logo-blue.png" alt="Switch" className="w-8 h-8 rounded-md border border-border" />
           <span className="font-extrabold text-lg tracking-tight text-foreground">
@@ -67,7 +70,10 @@ export const MobileNav: React.FC<MobileNavProps> = ({
       </header>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-card border-t border-border px-2 py-1.5 flex items-center justify-around shadow-sm">
+      <nav
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-card border-t border-border px-2 py-1.5 flex items-center justify-around shadow-sm"
+        style={{ paddingBottom: "max(0.375rem, env(safe-area-inset-bottom))" }}
+      >
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;

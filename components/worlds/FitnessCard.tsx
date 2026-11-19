@@ -152,7 +152,7 @@ export const FitnessCard: React.FC<FitnessCardProps> = ({
         {fitness?.targetMuscles && fitness.targetMuscles.length > 0 && (
           <div className="flex flex-wrap gap-1.5 items-center pt-1">
             <span className="text-xs text-muted-foreground mr-1 font-medium">Target:</span>
-            {fitness.targetMuscles.map((muscle, idx) => (
+            {fitness.targetMuscles.map((muscle: string, idx: number) => (
               <span
                 key={idx}
                 className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
@@ -183,7 +183,7 @@ export const FitnessCard: React.FC<FitnessCardProps> = ({
                   Programming Protocol
                 </h4>
                 <div className="space-y-2">
-                  {fitness.exercises.map((ex, idx) => {
+                  {fitness.exercises.map((ex: any, idx: number) => {
                     const isDone = !!completedSets[idx];
                     return (
                       <div

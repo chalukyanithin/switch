@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
+import { useAuth } from "../AuthProvider";
 import DarkSwitch from "./DarkSwitch";
 import NotificationsDrawer from "./NotificationsDrawer";
 import MessagesDrawer from "./MessagesDrawer";
@@ -52,7 +52,7 @@ const sidebarItems: SidebarItem[] = [
 
 export const Sidebar: React.FC = () => {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { session, signOut } = useAuth();
   const { activeWorld } = useActiveWorld();
 
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -75,7 +75,7 @@ export const Sidebar: React.FC = () => {
 
   if (isMemeWorld) {
     return (
-      <aside className="hidden md:flex flex-col h-full w-64 bg-white dark:bg-card border-r border-[#E2E8F0] dark:border-border p-4 justify-between transition-colors z-30 overflow-y-auto overflow-x-hidden custom-scrollbar overscroll-contain world-meme">
+      <aside className="hidden md:flex flex-col h-full w-64 bg-white dark:bg-sidebar border-r border-[#E2E8F0] dark:border-sidebar-border p-4 justify-between transition-colors z-30 overflow-y-auto overflow-x-hidden custom-scrollbar overscroll-contain world-meme">
         <div className="space-y-4 flex-1 pb-4">
           {/* Active Meme World Badge */}
           <Link
@@ -118,7 +118,7 @@ export const Sidebar: React.FC = () => {
         {/* Bottom Section: Invite a Memer + Theme Toggle & Profile */}
         <div className="space-y-3 pt-2">
           {/* Card: Invite a Memer matching screenshot */}
-          <div className="p-3.5 rounded-2xl border border-dashed border-blue-200 dark:border-blue-900/60 bg-blue-50/40 dark:bg-blue-950/20 text-center flex flex-col items-center gap-2">
+          <div className="p-3.5 rounded-2xl border border-dashed border-blue-200 dark:border-border bg-blue-50/40 dark:bg-card text-center flex flex-col items-center gap-2">
             {/* Doge cartoon illustration with pixel sunglasses */}
             <div className="w-12 h-12 flex items-center justify-center">
               <span className="text-3xl select-none filter drop-shadow-xs">🐕</span>
@@ -178,10 +178,10 @@ export const Sidebar: React.FC = () => {
   if (isTechWorld) {
     return (
       <>
-        <aside className="hidden md:flex flex-col h-full w-64 bg-white dark:bg-card border-r border-[#E2E8F0] dark:border-border p-4 justify-between transition-colors z-30 overflow-y-auto overflow-x-hidden custom-scrollbar overscroll-contain world-tech">
+        <aside className="hidden md:flex flex-col h-full w-64 bg-white dark:bg-sidebar border-r border-[#E2E8F0] dark:border-sidebar-border p-4 justify-between transition-colors z-30 overflow-y-auto overflow-x-hidden custom-scrollbar overscroll-contain world-tech">
           <div className="space-y-4 flex-1 pb-4">
             {/* Tech World Header Badge Card matching screenshot */}
-            <div className="p-3 rounded-xl bg-[#F8FAFC] dark:bg-secondary/40 border border-[#E2E8F0] dark:border-border flex items-center gap-3">
+            <div className="p-3 rounded-xl bg-[#F8FAFC] dark:bg-card border border-[#E2E8F0] dark:border-border flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-[#2463D3] flex items-center justify-center shrink-0 border border-blue-100 dark:border-blue-900/40">
                 <Code2 className="w-5 h-5" />
               </div>
@@ -347,18 +347,18 @@ export const Sidebar: React.FC = () => {
                   <li key={item.id}>
                     <Link
                       href={item.path}
-                      className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors duration-150 group ${
+                      className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-150 active:scale-[0.98] group ${
                         isActive
-                          ? "bg-primary text-primary-foreground font-bold"
+                          ? "bg-primary text-primary-foreground font-bold shadow-xs"
                           : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <Icon className={`w-4 h-4 ${isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-sidebar-foreground"}`} />
+                        <Icon className={`w-4 h-4 transition-colors ${isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-sidebar-foreground"}`} />
                         <span>{item.label}</span>
                       </div>
                       {isActive && (
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary-foreground" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary-foreground animate-in fade-in zoom-in-50 duration-150" />
                       )}
                     </Link>
                   </li>

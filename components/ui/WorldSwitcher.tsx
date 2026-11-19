@@ -3,6 +3,8 @@ import React, { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { WORLD_DEFINITIONS } from "@/lib/data/worldsData";
 import { Code2, Globe2, ChevronLeft, ChevronRight, Sparkles, Trophy } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { duration, ease } from "@/lib/motion";
 
 interface WorldSwitcherProps {
   activeWorld?: string;
@@ -59,9 +61,9 @@ export const WorldSwitcher: React.FC<WorldSwitcherProps> = ({
   const handleWorldClick = (world: (typeof WORLD_DEFINITIONS)[number]) => {
     if (onSelectWorld) {
       onSelectWorld(world.id);
+    } else {
+      router.push(world.slug);
     }
-    // Navigate into the dedicated world!
-    router.push(world.slug);
   };
 
   return (
@@ -95,11 +97,12 @@ export const WorldSwitcher: React.FC<WorldSwitcherProps> = ({
               role="tab"
               aria-selected={isActive}
               onClick={() => handleWorldClick(world)}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md text-xs sm:text-sm font-semibold whitespace-nowrap transition-colors cursor-pointer border select-none shrink-0 ${
+              className={`relative flex items-center gap-2 px-3.5 py-1.5 rounded-md text-xs sm:text-sm font-semibold whitespace-nowrap transition-colors cursor-pointer border select-none shrink-0 ${
                 isActive
                   ? "bg-primary text-primary-foreground border-transparent"
                   : "bg-card border-border text-foreground hover:bg-secondary"
               }`}
+              style={{ transition: `background-color ${duration.normal}s, color ${duration.normal}s, border-color ${duration.normal}s` }}
             >
               <Icon className="w-4 h-4" />
               <span>{world.id === "All" ? "All Worlds" : world.label}</span>

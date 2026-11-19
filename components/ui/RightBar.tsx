@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/components/AuthProvider";
 import { TrendingUp, Users, Sparkles, Check, Plus, ExternalLink, Globe2, BookOpen, Compass, Code2, Trophy, ArrowLeft, Radio } from "lucide-react";
 import { useActiveWorld } from "../ActiveWorldContext";
 import { WORLD_DEFINITIONS } from "@/lib/data/worldsData";
@@ -355,7 +355,7 @@ export const RightBar: React.FC = () => {
 
                 <button
                   onClick={() => toggleFollow(c.id)}
-                  className={`px-3 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer shrink-0 ${
+                  className={`px-3 py-1 rounded-md text-xs font-semibold transition-all duration-150 active:scale-[0.96] cursor-pointer shrink-0 ${
                     isFollowing
                       ? "bg-secondary text-foreground hover:bg-secondary/80 border border-border"
                       : "bg-primary text-primary-foreground hover:bg-primary/90"

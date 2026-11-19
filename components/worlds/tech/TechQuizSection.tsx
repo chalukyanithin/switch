@@ -14,6 +14,7 @@ import {
   Brain,
   Sparkles,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export interface QuizQuestion {
   id: string;
@@ -317,55 +318,65 @@ export const TechQuizSection: React.FC = () => {
         </div>
 
         {/* Detailed Explanation Drawer */}
-        {isAnswered && (
-          <div
-            className={`p-4 sm:p-5 rounded-md border space-y-3 animate-in fade-in duration-200 ${
-              isCorrect
-                ? "bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/50"
-                : "bg-blue-50/50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900/50"
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              {isCorrect ? (
-                <>
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span className="font-bold text-xs uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
-                    Correct Answer! Great Engineering Intuition
-                  </span>
-                </>
-              ) : (
-                <>
-                  <HelpCircle className="w-4 h-4 text-[#2463D3]" />
-                  <span className="font-bold text-xs uppercase tracking-wider text-[#2463D3] dark:text-blue-300">
-                    Concept Breakdown & Explanation
-                  </span>
-                </>
-              )}
-            </div>
+        <AnimatePresence>
+          {isAnswered && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.22, ease: [0.2, 0, 0, 1] }}
+              className="overflow-hidden"
+            >
+              <div
+                className={`p-4 sm:p-5 rounded-md border space-y-3 ${
+                  isCorrect
+                    ? "bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/50"
+                    : "bg-blue-50/50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900/50"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {isCorrect ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      <span className="font-bold text-xs uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
+                        Correct Answer! Great Engineering Intuition
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <HelpCircle className="w-4 h-4 text-[#2463D3]" />
+                      <span className="font-bold text-xs uppercase tracking-wider text-[#2463D3] dark:text-blue-300">
+                        Concept Breakdown & Explanation
+                      </span>
+                    </>
+                  )}
+                </div>
 
-            <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed">
-              {currentQuiz.explanation}
-            </p>
+                <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed">
+                  {currentQuiz.explanation}
+                </p>
 
-            {currentQuiz.docUrl && (
-              <div className="pt-2 border-t border-border/60 flex items-center justify-between">
-                <a
-                  href={currentQuiz.docUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-xs font-semibold text-[#2463D3] hover:underline flex items-center gap-1.5"
-                >
-                  <BookOpen className="w-3.5 h-3.5" />
-                  <span>{currentQuiz.docLabel || "Read Official Technical Docs"}</span>
-                </a>
+                {currentQuiz.docUrl && (
+                  <div className="pt-2 border-t border-border/60 flex items-center justify-between">
+                    <a
+                      href={currentQuiz.docUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs font-semibold text-[#2463D3] hover:underline flex items-center gap-1.5"
+                    >
+                      <BookOpen className="w-3.5 h-3.5" />
+                      <span>{currentQuiz.docLabel || "Read Official Technical Docs"}</span>
+                    </a>
 
-                <span className="text-[11px] font-mono text-muted-foreground">
-                  +10 XP Earned
-                </span>
+                    <span className="text-[11px] font-mono text-muted-foreground">
+                      +10 XP Earned
+                    </span>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Topic-Wise Performance & Quiz Archive */}

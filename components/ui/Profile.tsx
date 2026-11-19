@@ -1,10 +1,37 @@
+// ==============================================================================
+// SWITCH SOCIAL PLATFORM - PROFILE COMPONENT
+// File: components/ui/Profile.tsx
+// Unified Profile with World Tabs, Edit Profile, Username & Avatar Upload
+// ==============================================================================
+
 "use client";
-import React, { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
-import { getUserProfile, updateUserProfilePhoto, updateUserProfile, toggleFollowUser } from "@/lib/actions/user.actions";
+
+import React, { useState, useEffect, useRef } from "react";
+import { useAuth } from "@/components/AuthProvider";
 import {
-  MapPin, Calendar, Link as LinkIcon, Edit3, Grid, Heart, MessageCircle, User as UserIcon,
-  Bookmark, Check, Plus, Sparkles, Trophy, Code2, Globe2, X, Loader2
+  getUserProfile,
+  updateUserProfilePhoto,
+  updateUserProfile,
+  toggleFollowUser,
+} from "@/lib/actions/user.actions";
+import { ProfileService } from "@/lib/services/profile.service";
+import {
+  MapPin,
+  Calendar,
+  Link as LinkIcon,
+  Edit3,
+  Grid,
+  Bookmark,
+  Sparkles,
+  Trophy,
+  Code2,
+  X,
+  Loader2,
+  Upload,
+  Camera,
+  AlertCircle,
+  Shield,
+  CheckCircle2,
 } from "lucide-react";
 import Card from "@/components/ui/Card";
 
@@ -16,7 +43,7 @@ const AVATAR_PRESETS = [
   { label: "Strength Coach", url: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&h=300&q=80" },
   { label: "Digital Designer", url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&h=300&q=80" },
   { label: "Adventurer", url: "https://api.dicebear.com/7.x/adventurer/svg?seed=SwitchAdventurer" },
-  { label: "Cyberpunk", url: "https://api.dicebear.com/7.x/bottts/svg?seed=SwitchCyber" }
+  { label: "Cyberpunk", url: "https://api.dicebear.com/7.x/bottts/svg?seed=SwitchCyber" },
 ];
 
 interface ProfileProps {
@@ -24,8 +51,8 @@ interface ProfileProps {
 }
 
 export const Profile: React.FC<ProfileProps> = ({ userId }) => {
-  const { data: session } = useSession();
-  const loggedInUserId = (session?.user as any)?.id || "current-user";
+  const { user: authUser, profile: authProfile, refreshProfile } = useAuth();
+  const loggedInUserId = authUser?.id || "current-user";
   const fetchingUserId = userId || loggedInUserId;
   const isOwnProfile = !userId || userId === loggedInUserId;
 
@@ -39,12 +66,19 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [avatarUploadError, setAvatarUploadError] = useState("");
+  const [editModalError, setEditModalError] = useState("");
+  const [editSuccessToast, setEditSuccessToast] = useState(false);
 
   // Edit fields
-  const [editName, setEditName] = useState("");
+  const [editDisplayName, setEditDisplayName] = useState("");
+  const [editUsername, setEditUsername] = useState("");
   const [editBio, setEditBio] = useState("");
   const [editLocation, setEditLocation] = useState("");
   const [editWebsite, setEditWebsite] = useState("");
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (fetchingUserId) {
@@ -55,7 +89,8 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
           setFollowerCount(res.user.followers?.length || 0);
           setIsFollowing(res.user.followers?.includes(loggedInUserId) || false);
 
-          setEditName(res.user.username || "");
+          setEditDisplayName(res.user.name || res.user.username || "");
+          setEditUsername(res.user.username || "");
           setEditBio(res.user.bio || "");
           setEditLocation(res.user.location || "");
           setEditWebsite(res.user.website || "");
@@ -66,16 +101,16 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
 
   if (!userData) {
     return (
-      <div className="flex flex-col items-center justify-center p-20 space-y-3 text-gray-400">
-        <Loader2 className="w-8 h-8 animate-spin text-[#506ffc]" />
-        <p className="text-sm font-medium">Loading profile experience...</p>
+      <div className="flex flex-col items-center justify-center p-20 space-y-3 text-muted-foreground">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <p className="text-sm font-medium">Loading Switch profile...</p>
       </div>
     );
   }
 
   const handleFollowToggle = async () => {
     try {
-      const res = await toggleFollowUser(loggedInUserId, userData._id);
+      const res = await toggleFollowUser(loggedInUserId, userData._id || userData.id);
       setIsFollowing(res.following);
       setFollowerCount(res.count);
     } catch (e) {
@@ -88,42 +123,91 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSavingProfile(true);
+    setEditModalError("");
+
+    const targetId = userData._id || userData.id;
+
     try {
-      await updateUserProfile(userData._id, {
-        username: editName,
-        bio: editBio,
-        location: editLocation,
-        website: editWebsite
+      // 1. Check username availability if changed
+      const cleanUsername = editUsername.trim().toLowerCase().replace(/\s/g, "");
+      if (cleanUsername !== userData.username?.toLowerCase()) {
+        const available = await ProfileService.isUsernameAvailable(cleanUsername, targetId);
+        if (!available) {
+          setEditModalError(`The username "@${cleanUsername}" is already taken.`);
+          setIsSavingProfile(false);
+          return;
+        }
+      }
+
+      await updateUserProfile(targetId, {
+        username: cleanUsername,
+        display_name: editDisplayName.trim(),
+        bio: editBio.trim(),
+        location: editLocation.trim(),
+        website: editWebsite.trim(),
       });
+
       setUserData((prev: any) => ({
         ...prev,
-        username: editName,
-        bio: editBio,
-        location: editLocation,
-        website: editWebsite
+        username: cleanUsername,
+        name: editDisplayName.trim(),
+        bio: editBio.trim(),
+        location: editLocation.trim(),
+        website: editWebsite.trim(),
       }));
+
+      await refreshProfile();
       setShowEditModal(false);
-    } catch (err) {
-      console.error(err);
+      setEditSuccessToast(true);
+      setTimeout(() => setEditSuccessToast(false), 3000);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to save profile.";
+      setEditModalError(message);
     } finally {
       setIsSavingProfile(false);
     }
   };
 
+  // Avatar preset selection
   const handleAvatarSelect = async (url: string) => {
+    const targetId = userData._id || userData.id;
     try {
       setUserData((prev: any) => ({ ...prev, photo: url }));
       setShowAvatarModal(false);
-      await updateUserProfilePhoto(userData._id, url);
+      await updateUserProfilePhoto(targetId, url);
+      await refreshProfile();
     } catch (err) {
       console.error(err);
     }
   };
 
+  // Custom Avatar File Upload (Supabase Storage 'avatars' bucket)
+  const handleAvatarFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingAvatar(true);
+    setAvatarUploadError("");
+
+    const targetId = userData._id || userData.id;
+    const res = await ProfileService.uploadAvatar(targetId, file);
+
+    if (res.success && res.url) {
+      setUserData((prev: any) => ({ ...prev, photo: res.url }));
+      await updateUserProfilePhoto(targetId, res.url);
+      await refreshProfile();
+      setShowAvatarModal(false);
+    } else {
+      setAvatarUploadError(res.error || "Failed to upload avatar image.");
+    }
+    setIsUploadingAvatar(false);
+  };
+
   // Filter thoughts by active world tab
   const displayedThoughts = thoughts.filter((t) => {
     if (activeTab === "Posts") return true;
-    if (activeTab === "Technology") return t.world?.toLowerCase() === "technology" || t.world?.toLowerCase() === "tech" || t.tech;
+    if (activeTab === "Technology")
+      return t.world?.toLowerCase() === "technology" || t.world?.toLowerCase() === "tech" || t.tech;
     if (activeTab === "Memes") return t.world?.toLowerCase() === "meme" || t.meme;
     if (activeTab === "Cricket") return t.world?.toLowerCase() === "cricket" || t.cricket;
     if (activeTab === "Saved") return true;
@@ -136,11 +220,23 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
 
   return (
     <div className="w-full space-y-6">
+      {/* Toast Notification */}
+      {editSuccessToast && (
+        <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300 rounded-xl text-xs font-semibold flex items-center gap-2 animate-in fade-in">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+          <span>Profile updated successfully across all Switch worlds!</span>
+        </div>
+      )}
+
       {/* Profile Header Card */}
-      <div className="bg-card rounded-lg border border-border overflow-hidden">
+      <div className="switch-card w-full">
         {/* Cover Banner */}
         <div className="relative h-40 sm:h-48 w-full bg-slate-900 border-b border-border overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:16px_16px] opacity-40" />
+          <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1 rounded-full bg-black/60 backdrop-blur-xs text-[11px] font-mono text-white border border-white/20">
+            <Shield className="w-3.5 h-3.5 text-primary" />
+            <span>Shared Social Graph</span>
+          </div>
         </div>
 
         {/* Profile Info Row */}
@@ -151,54 +247,44 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
               <img
                 src={userData.photo || "https://api.dicebear.com/7.x/adventurer/svg?seed=SwitchCreator"}
                 alt={userData.username}
-                className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 border-card object-cover bg-card shadow-sm"
+                className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 border-card object-cover bg-card shadow-md"
               />
               {isOwnProfile && (
                 <button
                   onClick={() => setShowAvatarModal(true)}
-                  className="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-medium transition-opacity cursor-pointer"
+                  className="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white text-[11px] font-medium transition-opacity cursor-pointer gap-1"
+                  title="Change Avatar"
                 >
-                  Change
+                  <Camera className="w-4 h-4" />
+                  <span>Edit</span>
                 </button>
               )}
             </div>
 
-            {/* Action Buttons */}
+            {/* Profile Action Buttons */}
             <div className="flex items-center gap-2">
               {isOwnProfile ? (
-                <>
-                  <button
-                    onClick={() => setShowAvatarModal(true)}
-                    className="px-3.5 py-1.5 rounded-md text-xs font-medium border border-border bg-card hover:bg-secondary text-foreground transition-colors cursor-pointer"
-                  >
-                    Change Avatar
-                  </button>
-                  <button
-                    onClick={() => setShowEditModal(true)}
-                    className="px-3.5 py-1.5 rounded-md bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-medium transition-colors cursor-pointer flex items-center gap-1.5"
-                  >
-                    <Edit3 className="w-3.5 h-3.5" />
-                    <span>Edit Profile</span>
-                  </button>
-                </>
+                <button
+                  onClick={() => setShowEditModal(true)}
+                  className="px-4 py-2 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground text-xs font-semibold flex items-center gap-1.5 border border-border transition-colors cursor-pointer shadow-xs"
+                >
+                  <Edit3 className="w-3.5 h-3.5 text-primary" />
+                  <span>Edit Profile</span>
+                </button>
               ) : (
                 <button
                   onClick={handleFollowToggle}
-                  className={`px-4 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer flex items-center gap-1.5 ${
+                  className={`px-5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs ${
                     isFollowing
-                      ? "bg-secondary text-foreground border border-border hover:bg-destructive/10 hover:text-destructive"
-                      : "bg-primary hover:bg-primary/95 text-primary-foreground"
+                      ? "bg-secondary hover:bg-secondary/80 text-foreground border border-border"
+                      : "bg-primary hover:bg-primary/90 text-primary-foreground"
                   }`}
                 >
                   {isFollowing ? (
-                    <>
-                      <Check className="w-3.5 h-3.5" />
-                      <span>Following</span>
-                    </>
+                    <span>Following</span>
                   ) : (
                     <>
-                      <Plus className="w-3.5 h-3.5" />
-                      <span>Follow</span>
+                      <span>+ Follow</span>
                     </>
                   )}
                 </button>
@@ -209,11 +295,16 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
           {/* User Bio & Meta */}
           <div className="space-y-3">
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                {userData.username}
-              </h2>
-              <p className="text-xs text-muted-foreground font-mono">
-                @{userData.username?.toLowerCase() || "switch_creator"} • Switch Member
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+                  {userData.name || userData.username}
+                </h2>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-primary/10 text-primary border border-primary/20">
+                  Switch Verified
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground font-mono mt-0.5">
+                @{userData.username?.toLowerCase() || "switch_creator"} • One Account
               </p>
             </div>
 
@@ -232,7 +323,12 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
               {userData.website && (
                 <div className="flex items-center gap-1">
                   <LinkIcon className="w-3.5 h-3.5 text-muted-foreground" />
-                  <a href={userData.website} target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">
+                  <a
+                    href={userData.website}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-primary hover:underline font-medium"
+                  >
                     {userData.website.replace("https://", "")}
                   </a>
                 </div>
@@ -254,7 +350,9 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
                 <span className="text-muted-foreground">Followers</span>
               </div>
               <div>
-                <span className="font-bold text-foreground mr-1 text-sm">{userData.following?.length || 1}</span>
+                <span className="font-bold text-foreground mr-1 text-sm">
+                  {userData.following?.length || 1}
+                </span>
                 <span className="text-muted-foreground">Following</span>
               </div>
             </div>
@@ -293,7 +391,7 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
       {/* Tab Stream Feed */}
       <div className="space-y-6">
         {displayedThoughts.length === 0 ? (
-          <div className="p-8 text-center bg-card rounded-lg border border-border space-y-2">
+          <div className="p-8 text-center switch-card space-y-2">
             <p className="font-semibold text-sm text-foreground">
               No entries in {activeTab} yet
             </p>
@@ -302,33 +400,61 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
             </p>
           </div>
         ) : (
-          displayedThoughts.map((t) => (
-            <Card key={t._id} thought={t} />
-          ))
+          displayedThoughts.map((t) => <Card key={t._id} thought={t} />)
         )}
       </div>
 
       {/* Edit Profile Modal */}
       {showEditModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-in fade-in duration-150">
-          <div className="bg-card rounded-lg border border-border shadow-xl p-6 w-full max-w-md space-y-4">
+          <div className="switch-card p-6 w-full max-w-md space-y-4">
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <h3 className="font-bold text-foreground text-base">Edit Profile</h3>
-              <button onClick={() => setShowEditModal(false)} className="text-muted-foreground hover:text-foreground">
+              <h3 className="font-bold text-foreground text-base">Edit Switch Profile</h3>
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="text-muted-foreground hover:text-foreground cursor-pointer"
+              >
                 <X className="w-4 h-4" />
               </button>
             </div>
+
+            {editModalError && (
+              <div className="p-2.5 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{editModalError}</span>
+              </div>
+            )}
 
             <form onSubmit={handleSaveProfile} className="space-y-3.5 text-xs">
               <div>
                 <label className="block font-medium text-foreground mb-1">Display Name</label>
                 <input
                   type="text"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  className="w-full bg-background border border-input rounded-md p-2 text-foreground outline-none focus:border-primary"
+                  value={editDisplayName}
+                  onChange={(e) => setEditDisplayName(e.target.value)}
+                  className="w-full bg-background border border-input rounded-xl p-2.5 text-foreground outline-none focus:border-primary"
                   required
                 />
+              </div>
+
+              <div>
+                <label className="block font-medium text-foreground mb-1">
+                  Username (Unique handle across worlds)
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-mono">
+                    @
+                  </span>
+                  <input
+                    type="text"
+                    value={editUsername}
+                    onChange={(e) =>
+                      setEditUsername(e.target.value.toLowerCase().replace(/\s/g, ""))
+                    }
+                    className="w-full pl-7 pr-3 bg-background border border-input rounded-xl p-2.5 text-foreground outline-none focus:border-primary font-mono"
+                    required
+                  />
+                </div>
               </div>
 
               <div>
@@ -337,7 +463,8 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
                   value={editBio}
                   onChange={(e) => setEditBio(e.target.value)}
                   rows={3}
-                  className="w-full bg-background border border-input rounded-md p-2 text-foreground outline-none focus:border-primary"
+                  className="w-full bg-background border border-input rounded-xl p-2.5 text-foreground outline-none focus:border-primary"
+                  placeholder="Share what interests you across Technology, Cricket, and Memes..."
                 />
               </div>
 
@@ -348,7 +475,7 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
                   value={editLocation}
                   onChange={(e) => setEditLocation(e.target.value)}
                   placeholder="e.g. San Francisco or Remote"
-                  className="w-full bg-background border border-input rounded-md p-2 text-foreground outline-none focus:border-primary"
+                  className="w-full bg-background border border-input rounded-xl p-2.5 text-foreground outline-none focus:border-primary"
                 />
               </div>
 
@@ -359,7 +486,7 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
                   value={editWebsite}
                   onChange={(e) => setEditWebsite(e.target.value)}
                   placeholder="https://..."
-                  className="w-full bg-background border border-input rounded-md p-2 text-foreground outline-none focus:border-primary"
+                  className="w-full bg-background border border-input rounded-xl p-2.5 text-foreground outline-none focus:border-primary"
                 />
               </div>
 
@@ -367,14 +494,14 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
                 <button
                   type="button"
                   onClick={() => setShowEditModal(false)}
-                  className="px-3.5 py-1.5 rounded-md text-muted-foreground hover:bg-secondary font-medium transition-colors"
+                  className="px-3.5 py-2 rounded-xl text-muted-foreground hover:bg-secondary font-medium transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSavingProfile}
-                  className="px-4 py-1.5 rounded-md bg-primary hover:bg-primary/95 text-primary-foreground font-semibold transition-colors cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground font-semibold transition-colors cursor-pointer"
                 >
                   {isSavingProfile ? "Saving..." : "Save Changes"}
                 </button>
@@ -384,43 +511,85 @@ export const Profile: React.FC<ProfileProps> = ({ userId }) => {
         </div>
       )}
 
-      {/* Avatar Presets Modal */}
+      {/* Avatar Selection & Upload Modal */}
       {showAvatarModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-in fade-in duration-150">
-          <div className="bg-card rounded-lg border border-border shadow-xl p-6 w-full max-w-lg space-y-4">
+          <div className="switch-card p-6 w-full max-w-lg space-y-4">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div>
-                <h3 className="font-bold text-foreground text-base">Select Avatar Style</h3>
-                <p className="text-xs text-muted-foreground">Pick an identity tuned for your profile</p>
+                <h3 className="font-bold text-foreground text-base">Profile Photo</h3>
+                <p className="text-xs text-muted-foreground">
+                  Upload an image to Supabase Storage or choose a preset style
+                </p>
               </div>
-              <button onClick={() => setShowAvatarModal(false)} className="text-muted-foreground hover:text-foreground">
+              <button
+                onClick={() => setShowAvatarModal(false)}
+                className="text-muted-foreground hover:text-foreground cursor-pointer"
+              >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-h-72 overflow-y-auto p-1">
-              {AVATAR_PRESETS.map((p) => (
-                <div
-                  key={p.label}
-                  onClick={() => handleAvatarSelect(p.url)}
-                  className="p-3 rounded-md bg-secondary/50 border border-border hover:border-primary text-center cursor-pointer transition-colors group"
-                >
-                  <img
-                    src={p.url}
-                    alt={p.label}
-                    className="w-14 h-14 rounded-full mx-auto object-cover group-hover:scale-105 transition-transform"
-                  />
-                  <p className="text-xs font-medium text-foreground mt-2 truncate">
-                    {p.label}
-                  </p>
-                </div>
-              ))}
+            {avatarUploadError && (
+              <div className="p-2.5 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{avatarUploadError}</span>
+              </div>
+            )}
+
+            {/* Custom Image Upload Box */}
+            <div className="p-4 rounded-xl border border-dashed border-border bg-secondary/30 text-center space-y-2">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleAvatarFileUpload}
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                className="hidden"
+              />
+              <div className="flex items-center justify-center gap-2 text-xs font-semibold text-foreground">
+                <Upload className="w-4 h-4 text-primary" />
+                <span>Upload Custom Picture</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                JPG, PNG, WebP or GIF (Max 5MB). Stored securely in Supabase Storage.
+              </p>
+              <button
+                type="button"
+                disabled={isUploadingAvatar}
+                onClick={() => fileInputRef.current?.click()}
+                className="px-3.5 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold cursor-pointer shadow-xs transition-colors"
+              >
+                {isUploadingAvatar ? "Uploading to Supabase..." : "Select Image from Computer"}
+              </button>
+            </div>
+
+            {/* Presets Grid */}
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground mb-2">Or pick a curated preset:</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-h-56 overflow-y-auto p-1">
+                {AVATAR_PRESETS.map((p) => (
+                  <div
+                    key={p.label}
+                    onClick={() => handleAvatarSelect(p.url)}
+                    className="p-3 rounded-xl bg-secondary/50 border border-border hover:border-primary text-center cursor-pointer transition-colors group"
+                  >
+                    <img
+                      src={p.url}
+                      alt={p.label}
+                      className="w-12 h-12 rounded-full mx-auto object-cover group-hover:scale-105 transition-transform"
+                    />
+                    <p className="text-[11px] font-medium text-foreground mt-2 truncate">
+                      {p.label}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="text-center pt-2">
               <button
                 onClick={() => setShowAvatarModal(false)}
-                className="text-xs text-muted-foreground hover:underline"
+                className="text-xs text-muted-foreground hover:underline cursor-pointer"
               >
                 Close
               </button>

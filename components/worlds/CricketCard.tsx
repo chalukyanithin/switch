@@ -6,6 +6,7 @@ import { SwitchPost } from "@/lib/data/worldsData";
 import AudioCommentPlayer from "../ui/AudioCommentPlayer";
 import AudioCommentRecorder from "../ui/AudioCommentRecorder";
 import { addComment, addAudioComment } from "@/lib/actions/thought.actions";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface CricketCardProps {
   post: SwitchPost;
@@ -113,8 +114,10 @@ export const CricketCard: React.FC<CricketCardProps> = ({
           </div>
         </div>
 
-        <button
+        <motion.button
           onClick={() => setIsSaved(!isSaved)}
+          whileTap={{ scale: 0.85 }}
+          transition={{ type: "spring", stiffness: 400, damping: 18 }}
           className={`p-2 rounded-md transition-colors cursor-pointer ${
             isSaved
               ? "bg-primary text-primary-foreground"
@@ -122,8 +125,8 @@ export const CricketCard: React.FC<CricketCardProps> = ({
           }`}
           title="Save Match Discussion"
         >
-          <Bookmark className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
-        </button>
+          <Bookmark className={`w-4 h-4 transition-all duration-150 ${isSaved ? "fill-current" : ""}`} />
+        </motion.button>
       </div>
 
       {/* Match Scoreboard Snippet if available */}
@@ -167,47 +170,62 @@ export const CricketCard: React.FC<CricketCardProps> = ({
       {/* Footer Actions */}
       <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-t border-border bg-card text-muted-foreground text-sm">
         <div className="flex items-center gap-6">
-          <button
+          <motion.button
             onClick={handleLike}
+            whileTap={{ scale: 0.85 }}
+            transition={{ type: "spring", stiffness: 400, damping: 18 }}
             className={`flex items-center gap-1.5 transition-colors cursor-pointer ${
               isLiked ? "text-primary font-semibold" : "hover:text-primary"
             }`}
           >
-            <Heart className={`w-4 h-4 ${isLiked ? "fill-primary text-primary" : ""}`} />
+            <Heart className={`w-4 h-4 transition-all duration-150 ${isLiked ? "fill-primary text-primary scale-110" : ""}`} />
             <span>{likeCount}</span>
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
             onClick={() => setCommentOpen(!commentOpen)}
+            whileTap={{ scale: 0.92 }}
+            transition={{ duration: 0.15 }}
             className="flex items-center gap-1.5 hover:text-primary transition-colors cursor-pointer"
           >
             <MessageCircle className="w-4 h-4" />
             <span>{commentsList.length}</span>
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
             onClick={() => onShare && onShare(post)}
+            whileTap={{ scale: 0.92 }}
+            transition={{ duration: 0.15 }}
             className="flex items-center gap-1.5 hover:text-foreground transition-colors cursor-pointer"
           >
             <Share2 className="w-4 h-4" />
-          </button>
+          </motion.button>
         </div>
 
-        <button
+        <motion.button
           onClick={() => {
             setCommentOpen(true);
             setShowAudioRecorder(true);
           }}
+          whileTap={{ scale: 0.95 }}
           className="text-xs font-semibold text-primary hover:underline flex items-center gap-1.5 cursor-pointer"
         >
           <Mic className="w-3.5 h-3.5" />
           <span>Record Voice Reaction</span>
-        </button>
+        </motion.button>
       </div>
 
       {/* Comments Drawer */}
-      {commentOpen && (
-        <div className="p-4 sm:p-5 border-t border-border bg-secondary/40 space-y-4">
+      <AnimatePresence>
+        {commentOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.22, ease: [0.2, 0, 0, 1] }}
+            className="overflow-hidden"
+          >
+            <div className="p-4 sm:p-5 border-t border-border bg-secondary/40 space-y-4">
           <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
             {commentsList.length === 0 ? (
               <p className="text-xs text-muted-foreground text-center py-2">
@@ -277,9 +295,11 @@ export const CricketCard: React.FC<CricketCardProps> = ({
               </button>
             </form>
           )}
-        </div>
+          </div>
+        </motion.div>
       )}
-    </article>
+    </AnimatePresence>
+  </article>
   );
 };
 

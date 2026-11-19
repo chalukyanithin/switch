@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { X, Bell, Heart, MessageCircle, Star, Sparkles, Check, CheckCheck } from "lucide-react";
+import { AnimatePresence, AnimatedBackdrop, AnimatedDrawer } from "@/components/motion";
 
 interface NotificationItem {
   id: string;
@@ -107,8 +108,9 @@ export const NotificationsDrawer: React.FC<NotificationsDrawerProps> = ({ isOpen
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/40 backdrop-blur-xs flex justify-end animate-in fade-in duration-200">
-      <div className="w-full max-w-md h-full bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 shadow-2xl flex flex-col slide-in-from-right duration-300">
+    <div className="fixed inset-0 z-50 overflow-hidden flex justify-end">
+      <AnimatedBackdrop onClick={onClose} />
+      <AnimatedDrawer className="relative w-full max-w-md h-full bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 shadow-2xl flex flex-col z-10">
         {/* Header */}
         <div className="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -241,7 +243,7 @@ export const NotificationsDrawer: React.FC<NotificationsDrawerProps> = ({ isOpen
         <div className="p-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 text-center text-xs text-gray-400">
           Switch updates you on activity from your saved worlds
         </div>
-      </div>
+      </AnimatedDrawer>
     </div>
   );
 };

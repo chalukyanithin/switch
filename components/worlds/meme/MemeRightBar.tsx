@@ -99,7 +99,7 @@ export const MemeRightBar: React.FC<MemeRightBarProps> = ({
             setParticipated(true);
             if (onOpenCreate) onOpenCreate("Office");
           }}
-          className="w-full py-2 px-3 rounded-xl bg-[#2463D3] hover:bg-[#2463D3]/90 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer active:scale-98"
+          className="w-full py-2 px-3 rounded-xl bg-[#2463D3] hover:bg-[#2463D3]/90 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer active:scale-[0.98]"
         >
           {participated ? (
             <>

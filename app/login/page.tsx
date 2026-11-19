@@ -1,9 +1,17 @@
+// ==============================================================================
+// SWITCH SOCIAL PLATFORM - LOGIN PAGE
+// File: app/login/page.tsx
+// Production Supabase Authentication Login Screen
+// ==============================================================================
+
 "use client";
-import { useState } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Loader2, ArrowLeft, Sparkles } from "lucide-react";
+import { Loader2, ArrowLeft, LogIn, Sparkles } from "lucide-react";
+import { AuthService } from "@/lib/services/auth.service";
+import GoogleSignInButton from "@/components/ui/GoogleSignInButton";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -11,6 +19,19 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTarget = searchParams?.get("redirect") || "/";
+  const urlError = searchParams?.get("error");
+
+  useEffect(() => {
+    if (urlError) {
+      if (urlError === "oauth_failed" || urlError === "no_code_provided") {
+        setError("Google authentication could not be completed. Please try again.");
+      } else {
+        setError(decodeURIComponent(urlError));
+      }
+    }
+  }, [urlError]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,33 +39,32 @@ export default function Login() {
     setError("");
 
     try {
-      const res = await signIn("credentials", {
-        email,
+      const res = await AuthService.signIn({
+        email: email.trim(),
         password,
-        redirect: false,
       });
 
-      if (res?.error) {
-        setError(res.error);
+      if (!res.success) {
+        setError(res.error || "Invalid email or password. Please try again.");
         setLoading(false);
       } else {
-        router.push("/");
+        router.push(redirectTarget);
         router.refresh();
       }
-    } catch (err: any) {
-      setError(err?.message || "Sign in failed. Check your network or credentials.");
+    } catch {
+      setError("An unexpected network error occurred while connecting to the backend.");
       setLoading(false);
     }
   };
 
-  const handleDemoLogin = (demoEmail: string) => {
+  const handleDemoFill = (demoEmail: string) => {
     setEmail(demoEmail);
     setPassword("switchbot123");
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background text-foreground p-4">
-      <div className="w-full max-w-md bg-card rounded-lg border border-border p-6 sm:p-8 space-y-6">
+    <div className="flex min-h-screen items-center justify-center bg-background text-foreground p-4 sm:p-6 transition-colors">
+      <div className="w-full max-w-md switch-card p-6 sm:p-8 space-y-6">
         {/* Back Link */}
         <div>
           <Link
@@ -59,20 +79,38 @@ export default function Login() {
         {/* Brand Header */}
         <div className="text-center space-y-1.5">
           <Link href="/" className="inline-flex items-center gap-2.5">
-            <img src="/switch-logo-blue.png" alt="Switch" className="w-8 h-8 rounded-md" />
+            <img src="/switch-logo-blue.png" alt="Switch" className="w-8 h-8 rounded-lg" />
             <span className="font-extrabold text-xl tracking-tight text-foreground">
               SWITCH
             </span>
           </Link>
           <h1 className="text-xl font-bold text-foreground">Welcome Back</h1>
-          <p className="text-xs text-muted-foreground">Sign in to your account to switch worlds</p>
+          <p className="text-xs text-muted-foreground">
+            Sign in to switch between Technology, Cricket, and Meme worlds
+          </p>
         </div>
 
+        {/* Error Feedback */}
         {error && (
-          <div className="text-xs text-destructive text-center font-semibold bg-destructive/10 border border-destructive/20 p-2.5 rounded-md">
+          <div className="text-xs text-destructive text-center font-semibold bg-destructive/10 border border-destructive/20 p-3 rounded-xl animate-in fade-in">
             {error}
           </div>
         )}
+
+        {/* Google OAuth One-Click Sign In */}
+        <div className="space-y-4">
+          <GoogleSignInButton
+            redirectTo={typeof window !== "undefined" ? `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(redirectTarget)}` : undefined}
+            onError={(msg) => setError(msg)}
+          />
+
+          <div className="relative flex items-center justify-center">
+            <div className="border-t border-border w-full" />
+            <span className="bg-card px-3 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider relative shrink-0">
+              or continue with email
+            </span>
+          </div>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -85,61 +123,80 @@ export default function Login() {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="you@domain.com"
-              className="w-full px-3.5 py-2 rounded-md border border-input bg-background text-foreground text-sm focus:border-primary focus:outline-none transition-colors"
+              className="w-full px-3.5 py-2 rounded-xl border border-input bg-background text-foreground text-sm focus:border-primary focus:outline-none transition-colors"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-foreground mb-1.5">
-              Password
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-medium text-foreground">
+                Password
+              </label>
+            </div>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="••••••••"
-              className="w-full px-3.5 py-2 rounded-md border border-input bg-background text-foreground text-sm focus:border-primary focus:outline-none transition-colors"
+              className="w-full px-3.5 py-2 rounded-xl border border-input bg-background text-foreground text-sm focus:border-primary focus:outline-none transition-colors"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary hover:bg-primary/95 text-primary-foreground font-semibold rounded-md py-2.5 transition-colors flex justify-center items-center text-sm cursor-pointer"
+            className="w-full bg-primary hover:bg-primary/95 text-primary-foreground font-semibold rounded-xl py-2.5 transition-colors flex justify-center items-center gap-2 text-sm cursor-pointer shadow-xs active:scale-98"
           >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Sign In to Switch"}
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Signing in...</span>
+              </>
+            ) : (
+              <>
+                <LogIn className="w-4 h-4" />
+                <span>Sign In</span>
+              </>
+            )}
           </button>
         </form>
 
-        {/* Demo Login Quick Fills */}
-        <div className="pt-3 border-t border-border space-y-2">
-          <p className="text-[11px] font-medium text-muted-foreground text-center flex items-center justify-center gap-1">
-            <Sparkles className="w-3 h-3 text-primary" />
-            Quick Demo Accounts:
+        {/* Quick Demo Credentials */}
+        <div className="pt-2 border-t border-border space-y-2">
+          <p className="text-[11px] font-semibold text-muted-foreground flex items-center justify-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            <span>Developer Sandbox Quick-Fill</span>
           </p>
-          <div className="flex flex-wrap gap-1.5 justify-center">
+          <div className="flex flex-wrap justify-center gap-2">
             <button
               type="button"
-              onClick={() => handleDemoLogin("alpha@bot.switch")}
-              className="px-2.5 py-1 rounded-md text-xs bg-secondary hover:bg-secondary/80 text-secondary-foreground border border-border transition-colors cursor-pointer"
+              onClick={() => handleDemoFill("tech.lead@switch.social")}
+              className="px-2.5 py-1 text-[11px] font-mono rounded-lg border border-border bg-secondary/50 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             >
-              Chef Elena (Demo)
+              tech.lead
             </button>
             <button
               type="button"
-              onClick={() => handleDemoLogin("guru@bot.switch")}
-              className="px-2.5 py-1 rounded-md text-xs bg-secondary hover:bg-secondary/80 text-secondary-foreground border border-border transition-colors cursor-pointer"
+              onClick={() => handleDemoFill("meme.queen@switch.social")}
+              className="px-2.5 py-1 text-[11px] font-mono rounded-lg border border-border bg-secondary/50 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             >
-              Engineer Sarah (Demo)
+              meme.queen
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDemoFill("pitch.analyst@switch.social")}
+              className="px-2.5 py-1 text-[11px] font-mono rounded-lg border border-border bg-secondary/50 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            >
+              pitch.analyst
             </button>
           </div>
         </div>
 
-        <p className="text-center text-xs text-muted-foreground">
-          Don&apos;t have an account?{" "}
+        <p className="text-center text-xs text-muted-foreground pt-1">
+          Don&apos;t have an account yet?{" "}
           <Link href="/signup" className="text-primary font-semibold hover:underline">
-            Sign up
+            Create an account
           </Link>
         </p>
       </div>

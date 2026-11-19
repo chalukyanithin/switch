@@ -11,7 +11,8 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
   const { id } = await params;
   const post = await fetchThoughtById(id);
 
-  if (!post) {
+  let currentPost = post as any;
+  if (!currentPost) {
     // If not found, fetch standard thoughts or return not found
     const all = await fetchThoughts();
     const fallback = all.find((p) => p._id === id);
@@ -26,9 +27,8 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
         </div>
       );
     }
+    currentPost = fallback;
   }
-
-  const currentPost = post;
   const allPosts = await fetchThoughts(currentPost.world);
   const relatedPosts = allPosts.filter((p) => p._id !== currentPost._id).slice(0, 3);
 

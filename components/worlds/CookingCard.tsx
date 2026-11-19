@@ -170,7 +170,7 @@ export const CookingCard: React.FC<CookingCardProps> = ({
                     Ingredients Checklist ({Object.values(checkedIngredients).filter(Boolean).length}/{cooking.ingredients.length} ready)
                   </h4>
                   <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                    {cooking.ingredients.map((ing, i) => {
+                    {cooking.ingredients.map((ing: string, i: number) => {
                       const isChecked = !!checkedIngredients[i];
                       return (
                         <li
@@ -204,7 +204,7 @@ export const CookingCard: React.FC<CookingCardProps> = ({
                     Step-by-Step Method
                   </h4>
                   <ol className="space-y-2.5 text-sm">
-                    {cooking.instructions.map((step, idx) => (
+                    {cooking.instructions.map((step: string, idx: number) => (
                       <li key={idx} className="flex gap-3 text-foreground">
                         <span className="flex-shrink-0 w-6 h-6 rounded-full bg-orange-500 text-white text-xs font-bold flex items-center justify-center">
                           {idx + 1}

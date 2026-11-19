@@ -1,7 +1,17 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
 import AppLayoutShell from "@/components/ui/AppLayoutShell";
+import CapacitorMobileBridge from "@/components/CapacitorMobileBridge";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+  themeColor: "#2463D3",
+};
 
 export const metadata: Metadata = {
   title: "Switch — Every Interest Deserves Its Own World",
@@ -28,6 +38,7 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased bg-background text-foreground transition-colors duration-200">
         <AuthProvider>
+          <CapacitorMobileBridge />
           <AppLayoutShell>
             {children}
           </AppLayoutShell>

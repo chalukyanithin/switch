@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { X, MessageSquare, Send, CheckCheck, ArrowLeft, Circle } from "lucide-react";
+import { AnimatePresence, AnimatedBackdrop, AnimatedDrawer } from "@/components/motion";
 
 interface ChatMessage {
   id: string;
@@ -150,8 +151,9 @@ export const MessagesDrawer: React.FC<MessagesDrawerProps> = ({ isOpen, onClose 
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/40 backdrop-blur-xs flex justify-end animate-in fade-in duration-200">
-      <div className="w-full max-w-md h-full bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 shadow-2xl flex flex-col slide-in-from-right duration-300">
+    <div className="fixed inset-0 z-50 overflow-hidden flex justify-end">
+      <AnimatedBackdrop onClick={onClose} />
+      <AnimatedDrawer className="relative w-full max-w-md h-full bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 shadow-2xl flex flex-col z-10">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -281,7 +283,7 @@ export const MessagesDrawer: React.FC<MessagesDrawerProps> = ({ isOpen, onClose 
             </form>
           </div>
         )}
-      </div>
+      </AnimatedDrawer>
     </div>
   );
 };

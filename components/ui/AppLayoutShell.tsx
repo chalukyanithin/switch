@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/components/AuthProvider";
 import { Search, Bell, Code2, Home } from "lucide-react";
 import Sidebar from "./SideBar";
 import MobileNav from "./MobileNav";
@@ -11,6 +11,7 @@ import NotificationsDrawer from "./NotificationsDrawer";
 import MessagesDrawer from "./MessagesDrawer";
 import DarkSwitch from "./DarkSwitch";
 import { ActiveWorldProvider } from "../ActiveWorldContext";
+import { PageTransition, AnimatePresence } from "@/components/motion";
 
 export const AppLayoutShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const pathname = usePathname();
@@ -24,7 +25,11 @@ export const AppLayoutShell: React.FC<{ children: React.ReactNode }> = ({ childr
   const [messagesOpen, setMessagesOpen] = useState(false);
 
   if (isAuthPage) {
-    return <main className="min-h-screen w-full bg-background text-foreground">{children}</main>;
+    return (
+      <main className="min-h-screen w-full bg-background text-foreground">
+        <PageTransition key={pathname}>{children}</PageTransition>
+      </main>
+    );
   }
 
   const user = session?.user;
@@ -45,7 +50,7 @@ export const AppLayoutShell: React.FC<{ children: React.ReactNode }> = ({ childr
 
         {/* Tech World Desktop Top Navigation Bar */}
         {isTechWorld && (
-          <header className="hidden md:flex sticky top-0 z-40 w-full bg-white dark:bg-card border-b border-[#E2E8F0] dark:border-border h-14 px-6 items-center justify-between">
+          <header className="hidden md:flex sticky top-0 z-40 w-full bg-white dark:bg-sidebar border-b border-[#E2E8F0] dark:border-border h-14 px-6 items-center justify-between">
             {/* Left: Brand + World Tag */}
             <div className="flex items-center gap-6">
               <Link href="/" className="flex items-center gap-1 group">
@@ -102,7 +107,7 @@ export const AppLayoutShell: React.FC<{ children: React.ReactNode }> = ({ childr
 
         {/* Meme World Desktop Top Navigation Bar (Pixel-Matched to Screenshot) */}
         {isMemeWorld && (
-          <header className="hidden md:flex sticky top-0 z-40 w-full bg-white dark:bg-card border-b border-[#E2E8F0] dark:border-border h-14 px-6 items-center justify-between">
+          <header className="hidden md:flex sticky top-0 z-40 w-full bg-white dark:bg-sidebar border-b border-[#E2E8F0] dark:border-border h-14 px-6 items-center justify-between">
             {/* Left: [S] Switch Logo + Nav Links (Home, Worlds, Explore) */}
             <div className="flex items-center gap-6">
               <Link href="/" className="flex items-center gap-2.5 group">
@@ -183,7 +188,7 @@ export const AppLayoutShell: React.FC<{ children: React.ReactNode }> = ({ childr
 
           {/* Central Content Area (Scaled for Meme World so cover photo spans feed + right bar, but cards remain normal width) */}
           <main className={`flex-1 w-full ${isMemeWorld ? 'max-w-[960px] px-4 sm:px-6 py-4 pb-24 md:pb-12 md:ml-64' : 'max-w-2xl px-4 sm:px-6 py-6 pb-24 md:pb-12 md:ml-64 xl:mr-80'} min-h-screen`}>
-            {children}
+            <PageTransition key={pathname}>{children}</PageTransition>
           </main>
 
           {/* Fixed Right Column for Discovery & Trending (Except in Meme World where it flows below the cover photo) */}

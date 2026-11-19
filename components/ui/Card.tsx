@@ -3,12 +3,14 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Heart, MessageCircle, Share2, MoreHorizontal, Bookmark, Check, Mic } from "lucide-react";
 import { likeThought, addComment, addAudioComment } from "@/lib/actions/thought.actions";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/components/AuthProvider";
 import TechCard from "../worlds/TechCard";
 import MemeCard from "../worlds/MemeCard";
 import CricketCard from "../worlds/CricketCard";
 import AudioCommentPlayer from "./AudioCommentPlayer";
 import AudioCommentRecorder from "./AudioCommentRecorder";
+import { motion, AnimatePresence } from "framer-motion";
+import { duration, ease } from "@/lib/motion";
 
 interface CardProps {
   thought?: any;
@@ -66,10 +68,16 @@ export const Card: React.FC<CardProps> = ({ thought }) => {
 };
 
 const ShareToastNotification = () => (
-  <div className="fixed bottom-6 right-6 z-50 bg-foreground text-background px-3.5 py-2 rounded-md shadow-md flex items-center gap-2 text-xs font-medium animate-in fade-in slide-from-bottom-2">
+  <motion.div
+    initial={{ opacity: 0, y: 12 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: 8 }}
+    transition={{ duration: 0.2 }}
+    className="fixed bottom-6 right-6 z-50 bg-foreground text-background px-3.5 py-2 rounded-md shadow-md flex items-center gap-2 text-xs font-medium"
+  >
     <Check className="w-4 h-4 text-emerald-400" />
     <span>Link copied to clipboard!</span>
-  </div>
+  </motion.div>
 );
 
 const StandardCard: React.FC<{ thought: any; currentUserId: string; onShare: (t: any) => void }> = ({
@@ -186,16 +194,19 @@ const StandardCard: React.FC<{ thought: any; currentUserId: string; onShare: (t:
           </div>
         </div>
 
-        <button
+        <motion.button
           onClick={() => setIsSaved(!isSaved)}
+          whileTap={{ scale: 0.85 }}
+          transition={{ type: "spring", stiffness: 400, damping: 18 }}
           className={`p-2 rounded-md transition-colors cursor-pointer ${
             isSaved
               ? "bg-primary text-primary-foreground"
               : "text-muted-foreground hover:text-foreground hover:bg-secondary"
           }`}
+          aria-label={isSaved ? "Remove bookmark" : "Bookmark"}
         >
-          <Bookmark className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
-        </button>
+          <Bookmark className={`w-4 h-4 transition-all duration-150 ${isSaved ? "fill-current" : ""}`} />
+        </motion.button>
       </div>
 
       {/* Body Content */}
@@ -214,30 +225,39 @@ const StandardCard: React.FC<{ thought: any; currentUserId: string; onShare: (t:
       {/* Footer Actions */}
       <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-t border-border bg-card text-muted-foreground text-sm">
         <div className="flex items-center gap-6">
-          <button
+          <motion.button
             onClick={handleLike}
+            whileTap={{ scale: 0.85 }}
+            transition={{ type: "spring", stiffness: 400, damping: 18 }}
             className={`flex items-center gap-1.5 transition-colors cursor-pointer ${
               hasLiked ? "text-red-500 font-semibold" : "hover:text-red-500"
             }`}
+            aria-label={hasLiked ? "Unlike" : "Like"}
           >
-            <Heart className={`w-5 h-5 ${hasLiked ? "fill-red-500 text-red-500" : ""}`} />
+            <Heart className={`w-5 h-5 transition-all duration-150 ${hasLiked ? "fill-red-500 text-red-500" : ""}`} />
             <span>{likes.length}</span>
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
             onClick={() => setActiveAction(activeAction === "comment" ? null : "comment")}
+            whileTap={{ scale: 0.9 }}
+            transition={{ duration: 0.15 }}
             className="flex items-center gap-1.5 hover:text-primary transition-colors cursor-pointer"
+            aria-label="Comment"
           >
             <MessageCircle className="w-5 h-5" />
             <span>{comments.length}</span>
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
             onClick={() => onShare(thought)}
+            whileTap={{ scale: 0.9 }}
+            transition={{ duration: 0.15 }}
             className="flex items-center gap-1.5 hover:text-foreground transition-colors cursor-pointer"
+            aria-label="Share"
           >
             <Share2 className="w-5 h-5" />
-          </button>
+          </motion.button>
         </div>
 
         <span className="text-xs text-muted-foreground font-medium">
@@ -246,8 +266,16 @@ const StandardCard: React.FC<{ thought: any; currentUserId: string; onShare: (t:
       </div>
 
       {/* Comments Drawer */}
-      {activeAction === "comment" && (
-        <div className="p-4 sm:p-5 border-t border-border bg-secondary/40 space-y-3">
+      <AnimatePresence>
+        {activeAction === "comment" && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.22, ease: [0.2, 0, 0, 1] }}
+            className="overflow-hidden"
+          >
+            <div className="p-4 sm:p-5 border-t border-border bg-secondary/40 space-y-3">
           <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
             {comments.length === 0 ? (
               <p className="text-xs text-muted-foreground text-center py-2">
@@ -308,7 +336,9 @@ const StandardCard: React.FC<{ thought: any; currentUserId: string; onShare: (t:
             </form>
           )}
         </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </article>
   );
 };

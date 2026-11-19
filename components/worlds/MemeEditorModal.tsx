@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { X, Sparkles, Type, Sliders, Check, Download, RefreshCw } from "lucide-react";
 import { SwitchPost, MemeMetadata, MemeLayer } from "@/lib/data/worldsData";
+import { AnimatedBackdrop, AnimatedModal } from "@/components/motion";
 
 interface MemeEditorModalProps {
   templatePost: SwitchPost;
@@ -174,8 +175,9 @@ export const MemeEditorModal: React.FC<MemeEditorModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/75 animate-in fade-in duration-150 world-meme">
-      <div className="bg-card w-full max-w-2xl rounded-lg border border-border shadow-xl overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 world-meme">
+      <AnimatedBackdrop onClick={onClose} />
+      <AnimatedModal className="relative z-10 bg-card w-full max-w-2xl rounded-2xl border border-border shadow-xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Modal Header */}
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-border bg-card">
           <div className="flex items-center gap-2">
@@ -345,7 +347,7 @@ export const MemeEditorModal: React.FC<MemeEditorModalProps> = ({
             )}
           </button>
         </div>
-      </div>
+      </AnimatedModal>
     </div>
   );
 };

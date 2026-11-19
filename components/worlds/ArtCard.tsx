@@ -142,7 +142,7 @@ export const ArtCard: React.FC<ArtCardProps> = ({
                 Palette:
               </span>
               <div className="flex items-center gap-1.5">
-                {art.palette.map((color, idx) => (
+                {art.palette.map((color: string, idx: number) => (
                   <div
                     key={idx}
                     className="w-5 h-5 rounded-md border border-border shadow-xs cursor-pointer hover:scale-110 transition-transform"
@@ -175,7 +175,7 @@ export const ArtCard: React.FC<ArtCardProps> = ({
                   Glaze Progression & Technique
                 </h4>
                 <ol className="space-y-1.5">
-                  {art.processSteps.map((step, idx) => (
+                  {art.processSteps.map((step: string, idx: number) => (
                     <li key={idx} className="flex gap-2.5 text-foreground">
                       <span className="flex-shrink-0 w-4 h-4 rounded-full bg-purple-600 text-white text-[10px] font-bold flex items-center justify-center">
                         {idx + 1}

@@ -1,18 +1,23 @@
+// ==============================================================================
+// SWITCH SOCIAL PLATFORM - THOUGHT & POST SERVER ACTIONS
+// File: lib/actions/thought.actions.ts
+// Supabase-backed post actions with in-memory fallback for preview
+// ==============================================================================
+
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { connectToDatabase } from "../database";
-import Thought from "../database/models/Thought";
-import User from "../database/models/User"; // Required for populate
+import { createClient } from "@/lib/supabase/server";
 import { INITIAL_SWITCH_POSTS, SwitchPost, AudioCommentData, MemeMetadata } from "../data/worldsData";
 
-// In-memory runtime cache for fallback posts so user actions (creating post, commenting, liking, remixing) persist in runtime
+// In-memory runtime cache for fallback posts so user actions persist in preview
 let memoryPosts: SwitchPost[] = [...INITIAL_SWITCH_POSTS];
 
 export async function createThought(params: {
   content: string;
   world: string;
-  authorId: string;
+  authorId?: string;
+  author?: string;
   image?: string;
   cooking?: any;
   art?: any;
@@ -22,80 +27,156 @@ export async function createThought(params: {
   meme?: any;
   cricket?: any;
 }) {
-  try {
-    await connectToDatabase();
-    
-    const newThought = await Thought.create({
-      content: params.content,
-      world: params.world,
-      author: params.authorId,
-      image: params.image,
-      tech: params.tech,
-      meme: params.meme,
-      cricket: params.cricket,
-      cooking: params.cooking,
-      art: params.art,
-      music: params.music,
-      fitness: params.fitness,
-    });
+  let createdPost: any = null;
+  const resolvedAuthorId = params.authorId || params.author || "current-user";
 
-    revalidatePath("/");
-    revalidatePath("/explore");
-    return JSON.parse(JSON.stringify(newThought));
+  try {
+    const supabase = await createClient();
+
+    // Resolve world ID
+    const { data: worldData } = await supabase
+      .from("worlds")
+      .select("id")
+      .ilike("name", params.world)
+      .maybeSingle();
+
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(resolvedAuthorId);
+
+    if (worldData && isUuid) {
+      const { data: post, error } = await supabase
+        .from("posts")
+        .insert({
+          user_id: resolvedAuthorId,
+          world_id: worldData.id,
+          content: params.content,
+          post_type: (params.world.toLowerCase() as any) || "standard",
+        })
+        .select()
+        .single();
+
+      if (post && !error) {
+        if (params.image) {
+          await supabase.from("post_media").insert({
+            post_id: post.id,
+            media_url: params.image,
+            media_type: "image",
+          });
+        }
+        createdPost = post;
+      }
+    }
   } catch (error) {
-    console.warn("MongoDB unavailable, recording to memory data adapter:", error);
-    const newPost: SwitchPost = {
-      _id: `mem-${Date.now()}`,
-      content: params.content,
-      world: params.world,
-      image: params.image,
-      createdAt: new Date().toISOString(),
-      author: {
-        _id: params.authorId || "current-user",
-        username: "You",
-        photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&h=300&q=80",
-        bio: "Explorer on Switch."
-      },
-      likes: [],
-      comments: [],
-      cooking: params.cooking,
-      art: params.art,
-      tech: params.tech,
-      music: params.music,
-      fitness: params.fitness,
-      meme: params.meme,
-      cricket: params.cricket,
-    };
-    memoryPosts = [newPost, ...memoryPosts];
+    console.warn("Supabase createThought fallback:", error);
+  }
+
+  const newPost: SwitchPost = {
+    _id: createdPost?.id || `mem-${Date.now()}`,
+    content: params.content,
+    world: params.world,
+    image: params.image,
+    createdAt: new Date().toISOString(),
+    author: {
+      _id: resolvedAuthorId,
+      username: "You",
+      photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&h=300&q=80",
+      bio: "Explorer on Switch.",
+    },
+    likes: [],
+    comments: [],
+    cooking: params.cooking,
+    art: params.art,
+    tech: params.tech,
+    music: params.music,
+    fitness: params.fitness,
+    meme: params.meme,
+    cricket: params.cricket,
+  };
+
+  memoryPosts = [newPost, ...memoryPosts];
+  try {
     revalidatePath("/");
     revalidatePath("/explore");
-    return newPost;
+    revalidatePath(`/world/${params.world.toLowerCase()}`);
+  } catch {
+    // revalidatePath may be a no-op in non-page contexts
   }
+  return newPost;
 }
 
 export async function fetchThoughts(worldFilter?: string) {
   let dbThoughts: any[] = [];
+
   try {
-    await connectToDatabase();
-    
-    const query = worldFilter && worldFilter !== "All" ? { world: worldFilter } : {};
-    const thoughts = await Thought.find(query)
-      .populate({ path: "author", model: User, select: "_id username photo bio" })
-      .populate({ path: "comments.author", model: User, select: "_id username photo" })
-      .sort({ createdAt: "desc" });
-      
-    dbThoughts = JSON.parse(JSON.stringify(thoughts));
+    const supabase = await createClient();
+    let query = supabase
+      .from("posts")
+      .select(`
+        *,
+        author:profiles!posts_user_id_fkey(*),
+        world:worlds!posts_world_id_fkey(*),
+        media:post_media(*),
+        comments:comments(*, author:profiles(*)),
+        reactions:reactions(*)
+      `)
+      .order("created_at", { ascending: false });
+
+    if (worldFilter && worldFilter !== "All") {
+      const { data: w } = await supabase
+        .from("worlds")
+        .select("id")
+        .ilike("name", worldFilter)
+        .maybeSingle();
+
+      if (w) {
+        query = query.eq("world_id", w.id);
+      }
+    }
+
+    const { data: supabasePosts, error } = await query;
+    if (supabasePosts && !error && supabasePosts.length > 0) {
+      dbThoughts = supabasePosts.map((p: any) => ({
+        _id: p.id,
+        content: p.content,
+        world: p.world?.name || "General",
+        createdAt: p.created_at,
+        author: {
+          _id: p.author?.id || "user-supabase",
+          username: p.author?.username || "SwitchUser",
+          photo:
+            p.author?.avatar_url ||
+            `https://api.dicebear.com/7.x/adventurer/svg?seed=${p.author?.id || "SwitchUser"}`,
+          bio: p.author?.bio || "",
+        },
+        image: p.media?.[0]?.media_url || null,
+        likes: (p.reactions || []).map((r: any) => r.user_id),
+        comments: (p.comments || []).map((c: any) => ({
+          _id: c.id,
+          text: c.content,
+          type: "text",
+          author: {
+            _id: c.author?.id || c.user_id,
+            username: c.author?.username || "Commenter",
+            photo: c.author?.avatar_url || `https://api.dicebear.com/7.x/adventurer/svg?seed=${c.user_id}`,
+          },
+          createdAt: c.created_at,
+        })),
+      }));
+    }
   } catch (error) {
-    console.warn("MongoDB unreachable in fetchThoughts, using world mock data:", error);
+    console.warn("fetchThoughts fallback:", error);
   }
 
-  // If DB thoughts exist, combine with specialized world posts that don't collide
+  // Combine with memory/demo posts for seamless preview
   const combined = [...dbThoughts];
-  const existingIds = new Set(dbThoughts.map(t => String(t._id)));
+  const existingIds = new Set(dbThoughts.map((t) => String(t._id)));
 
   for (const post of memoryPosts) {
     if (!existingIds.has(post._id)) {
-      if (!worldFilter || worldFilter === "All" || post.world.toLowerCase() === worldFilter.toLowerCase()) {
+      if (
+        !worldFilter ||
+        worldFilter === "All" ||
+        post.world.toLowerCase() === worldFilter.toLowerCase()
+      ) {
         combined.push(post);
       }
     }
@@ -106,44 +187,91 @@ export async function fetchThoughts(worldFilter?: string) {
 
 export async function fetchThoughtById(id: string) {
   try {
-    await connectToDatabase();
-    const thought = await Thought.findById(id)
-      .populate({ path: "author", model: User, select: "_id username photo bio" })
-      .populate({ path: "comments.author", model: User, select: "_id username photo" });
-    if (thought) return JSON.parse(JSON.stringify(thought));
+    const supabase = await createClient();
+    const { data: p } = await supabase
+      .from("posts")
+      .select(`
+        *,
+        author:profiles!posts_user_id_fkey(*),
+        world:worlds!posts_world_id_fkey(*),
+        media:post_media(*),
+        comments:comments(*, author:profiles(*)),
+        reactions:reactions(*)
+      `)
+      .eq("id", id)
+      .maybeSingle();
+
+    if (p) {
+      return {
+        _id: p.id,
+        content: p.content,
+        world: p.world?.name || "General",
+        createdAt: p.created_at,
+        author: {
+          _id: p.author?.id || "user-supabase",
+          username: p.author?.username || "SwitchUser",
+          photo: p.author?.avatar_url || `https://api.dicebear.com/7.x/adventurer/svg?seed=${p.author?.id}`,
+          bio: p.author?.bio || "",
+        },
+        image: p.media?.[0]?.media_url || null,
+        likes: (p.reactions || []).map((r: any) => r.user_id),
+        comments: (p.comments || []).map((c: any) => ({
+          _id: c.id,
+          text: c.content,
+          type: "text",
+          author: {
+            _id: c.author?.id || c.user_id,
+            username: c.author?.username || "Commenter",
+            photo: c.author?.avatar_url || `https://api.dicebear.com/7.x/adventurer/svg?seed=${c.user_id}`,
+          },
+          createdAt: c.created_at,
+        })),
+      };
+    }
   } catch (e) {
-    console.warn("fetchThoughtById DB error:", e);
+    console.warn("fetchThoughtById fallback:", e);
   }
 
-  const memoryMatch = memoryPosts.find(p => p._id === id);
+  const memoryMatch = memoryPosts.find((p) => p._id === id);
   if (memoryMatch) return memoryMatch;
   return null;
 }
 
 export async function likeThought(thoughtId: string, userId: string) {
   try {
-    await connectToDatabase();
-    const thought = await Thought.findById(thoughtId);
-    if (thought) {
-      const hasLiked = thought.likes.includes(userId);
-      if (hasLiked) {
-        thought.likes = thought.likes.filter((id: any) => id.toString() !== userId);
+    const supabase = await createClient();
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
+    const isPostUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(thoughtId);
+
+    if (isUuid && isPostUuid) {
+      const { data: existing } = await supabase
+        .from("reactions")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("post_id", thoughtId)
+        .eq("reaction_type", "upvote")
+        .maybeSingle();
+
+      if (existing) {
+        await supabase.from("reactions").delete().eq("id", existing.id);
       } else {
-        thought.likes.push(userId);
+        await supabase.from("reactions").insert({
+          user_id: userId,
+          post_id: thoughtId,
+          reaction_type: "upvote",
+        });
       }
-      await thought.save();
-      revalidatePath("/");
-      return JSON.parse(JSON.stringify(thought));
     }
   } catch (error) {
-    console.warn("likeThought DB offline, toggling in memory store:", error);
+    console.warn("likeThought fallback:", error);
   }
 
-  // Fallback to memory posts
-  const post = memoryPosts.find(p => p._id === thoughtId);
+  // Fallback in memory
+  const post = memoryPosts.find((p) => p._id === thoughtId);
   if (post) {
+    if (!post.likes) post.likes = [];
     if (post.likes.includes(userId)) {
-      post.likes = post.likes.filter(id => id !== userId);
+      post.likes = post.likes.filter((id) => id !== userId);
     } else {
       post.likes.push(userId);
     }
@@ -153,131 +281,94 @@ export async function likeThought(thoughtId: string, userId: string) {
 }
 
 export async function addComment(thoughtId: string, userId: string, text: string, username = "You") {
+  let createdCommentId: string | null = null;
+
   try {
-    await connectToDatabase();
-    const thought = await Thought.findById(thoughtId);
-    if (thought) {
-      thought.comments.push({ type: "text", text, author: userId });
-      await thought.save();
-      revalidatePath("/");
-      return JSON.parse(JSON.stringify(thought));
+    const supabase = await createClient();
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
+    const isPostUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(thoughtId);
+
+    if (isUuid && isPostUuid) {
+      const { data: c } = await supabase
+        .from("comments")
+        .insert({
+          post_id: thoughtId,
+          user_id: userId,
+          content: text,
+        })
+        .select("id")
+        .single();
+      if (c) createdCommentId = c.id;
+      try {
+        revalidatePath("/");
+      } catch {}
     }
   } catch (error) {
-    console.warn("addComment DB offline, adding to memory store:", error);
+    console.warn("addComment fallback:", error);
   }
 
-  const post = memoryPosts.find(p => p._id === thoughtId);
+  const post = memoryPosts.find((p) => p._id === thoughtId);
+  const newComment = {
+    _id: createdCommentId || `comm-${Date.now()}`,
+    text,
+    type: "text" as const,
+    author: {
+      _id: userId,
+      username,
+      photo: `https://api.dicebear.com/7.x/adventurer/svg?seed=${username}`,
+    },
+    createdAt: "Just now",
+  };
+
   if (post) {
-    const newComment = {
-      _id: `c-${Date.now()}`,
-      type: "text" as const,
-      text,
-      author: {
-        _id: userId,
-        username,
-        photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&h=300&q=80"
-      },
-      createdAt: "Just now"
-    };
+    if (!post.comments) post.comments = [];
     post.comments.push(newComment);
-    return post;
   }
-  return null;
+  return newComment;
 }
 
-export async function addAudioComment(
-  thoughtId: string,
-  userId: string,
-  audioData: AudioCommentData,
-  username = "You"
-) {
-  // Validate max duration 30,000 ms
-  if (audioData.durationMs > 30000) {
-    throw new Error("Audio comment exceeds maximum permitted duration of 30 seconds");
-  }
-
-  try {
-    await connectToDatabase();
-    const thought = await Thought.findById(thoughtId);
-    if (thought) {
-      thought.comments.push({
-        type: "audio",
-        audio: audioData,
-        author: userId,
-      });
-      await thought.save();
-      revalidatePath("/");
-      return JSON.parse(JSON.stringify(thought));
-    }
-  } catch (error) {
-    console.warn("addAudioComment DB offline, adding to memory store:", error);
-  }
-
-  const post = memoryPosts.find(p => p._id === thoughtId);
+export async function addAudioComment(thoughtId: string, userId: string, audioData: AudioCommentData, username = "Voice Member") {
+  const post = memoryPosts.find((p) => p._id === thoughtId);
+  const newComment = {
+    _id: `aud-${Date.now()}`,
+    type: "audio" as const,
+    audio: audioData,
+    author: {
+      _id: userId,
+      username,
+      photo: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}`,
+    },
+    createdAt: "Just now",
+  };
   if (post) {
-    const newComment = {
-      _id: `caudio-${Date.now()}`,
-      type: "audio" as const,
-      audio: audioData,
-      author: {
-        _id: userId,
-        username,
-        photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&h=300&q=80"
-      },
-      createdAt: "Just now"
-    };
+    if (!post.comments) post.comments = [];
     post.comments.push(newComment);
-    return post;
   }
-  return null;
+  return newComment;
 }
 
 export async function remixMeme(params: {
-  parentMemePostId: string;
-  renderedImageUrl: string;
-  caption: string;
-  authorId: string;
+  parentMemeId?: string;
+  parentMemePostId?: string;
+  templateImageUrl?: string;
+  renderedImageUrl?: string;
+  layers?: any[];
+  caption?: string;
+  authorId?: string;
   authorUsername?: string;
-  memeMetadata: MemeMetadata;
+  memeMetadata?: any;
 }) {
-  const newPost: SwitchPost = {
-    _id: `meme-remix-${Date.now()}`,
+  const image = params.renderedImageUrl || params.templateImageUrl || "";
+  return createThought({
+    content: params.caption || "Remixed Meme via Switch Meme World",
     world: "Meme",
-    content: params.caption,
-    image: params.renderedImageUrl,
-    author: {
-      _id: params.authorId,
-      username: params.authorUsername || "You",
-      photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&h=300&q=80",
-      bio: "Meme creator on Switch."
+    authorId: params.authorId || "current-user",
+    image,
+    meme: params.memeMetadata || {
+      isTemplate: false,
+      templateImageUrl: image,
+      parentMemeId: params.parentMemePostId || params.parentMemeId,
+      layers: params.layers,
     },
-    createdAt: new Date().toISOString(),
-    likes: [],
-    comments: [],
-    sharesCount: 0,
-    meme: {
-      ...params.memeMetadata,
-      isTemplate: true,
-      remixCount: 0,
-      parentMemeId: params.parentMemePostId,
-    }
-  };
-
-  try {
-    await connectToDatabase();
-    await Thought.create({
-      content: params.caption,
-      world: "Meme",
-      author: params.authorId,
-      image: params.renderedImageUrl,
-      extensionType: "meme",
-      meme: newPost.meme,
-    });
-  } catch (e) {
-    console.warn("remixMeme DB offline, persisting to memory adapter:", e);
-  }
-
-  memoryPosts = [newPost, ...memoryPosts];
-  revalidatePath("/");
-  return newPost;
+  });
 }

@@ -19,6 +19,7 @@ import MemeEditorModal from "./MemeEditorModal";
 import AudioCommentPlayer from "../ui/AudioCommentPlayer";
 import AudioCommentRecorder from "../ui/AudioCommentRecorder";
 import { addComment, addAudioComment } from "@/lib/actions/thought.actions";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface MemeCardProps {
   post: SwitchPost;
@@ -169,23 +170,27 @@ export const MemeCard: React.FC<MemeCardProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <button
+            <motion.button
               onClick={() => setIsFollowing(!isFollowing)}
-              className={`px-3.5 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+              whileTap={{ scale: 0.94 }}
+              transition={{ duration: 0.15 }}
+              className={`px-3.5 py-1 rounded-full text-xs font-bold transition-colors cursor-pointer ${
                 isFollowing
                   ? "bg-slate-100 dark:bg-secondary text-foreground border border-border"
                   : "border border-[#2463D3] text-[#2463D3] hover:bg-blue-50 dark:hover:bg-blue-950/40"
               }`}
             >
               {isFollowing ? "Following" : "Follow"}
-            </button>
+            </motion.button>
 
-            <button
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              transition={{ duration: 0.15 }}
               className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-slate-50 dark:hover:bg-secondary/40 transition-colors"
               title="Options"
             >
               <MoreHorizontal className="w-4 h-4" />
-            </button>
+            </motion.button>
           </div>
         </div>
 
@@ -234,34 +239,44 @@ export const MemeCard: React.FC<MemeCardProps> = ({
         {/* Reaction Bar & Engagement Actions (Pixel-Matched to Screenshot) */}
         <div className="relative flex items-center justify-between px-4 sm:px-5 py-3 border-t border-[#E2E8F0] dark:border-border bg-white dark:bg-card text-muted-foreground text-xs sm:text-sm">
           {/* Reaction Picker Popover */}
-          {showReactionPicker && (
-            <div className="absolute -top-12 left-4 z-30 flex items-center gap-1.5 p-1.5 rounded-full bg-white dark:bg-card border border-[#E2E8F0] dark:border-border shadow-lg animate-in fade-in slide-from-bottom-2">
-              {FUNNY_REACTIONS.map((r) => (
-                <button
-                  key={r.key}
-                  onClick={() => handleSelectReaction(r.emoji)}
-                  className="w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-secondary flex items-center justify-center text-lg hover:scale-125 transition-transform cursor-pointer"
-                  title={r.label}
-                >
-                  {r.emoji}
-                </button>
-              ))}
-            </div>
-          )}
+          <AnimatePresence>
+            {showReactionPicker && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 6 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 6 }}
+                transition={{ duration: 0.15 }}
+                className="absolute -top-12 left-4 z-30 flex items-center gap-1.5 p-1.5 rounded-full bg-white dark:bg-card border border-[#E2E8F0] dark:border-border shadow-lg"
+              >
+                {FUNNY_REACTIONS.map((r) => (
+                  <button
+                    key={r.key}
+                    onClick={() => handleSelectReaction(r.emoji)}
+                    className="w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-secondary flex items-center justify-center text-lg hover:scale-125 transition-transform cursor-pointer"
+                    title={r.label}
+                  >
+                    {r.emoji}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <div className="flex items-center gap-4 sm:gap-6">
             {/* Upvote / Downvote Pill matching screenshot */}
             <div className="flex items-center rounded-full border border-[#E2E8F0] dark:border-border bg-[#F8FAFC] dark:bg-secondary/40 px-2 py-1 text-xs font-bold">
-              <button
+              <motion.button
                 onClick={handleUpvote}
                 onMouseEnter={() => setShowReactionPicker(true)}
+                whileTap={{ scale: 0.85 }}
+                transition={{ type: "spring", stiffness: 400, damping: 18 }}
                 className={`p-0.5 rounded-full transition-colors cursor-pointer ${
                   userVote === "up" ? "text-[#2463D3]" : "text-muted-foreground hover:text-[#2463D3]"
                 }`}
                 title="Upvote"
               >
                 <ArrowBigUp className={`w-4 h-4 ${userVote === "up" ? "fill-current" : ""}`} />
-              </button>
+              </motion.button>
 
               <button
                 onClick={() => setShowReactionPicker(!showReactionPicker)}
@@ -271,47 +286,57 @@ export const MemeCard: React.FC<MemeCardProps> = ({
                 <span>{formatVotes(upvotes)}</span>
               </button>
 
-              <button
+              <motion.button
                 onClick={handleDownvote}
+                whileTap={{ scale: 0.85 }}
+                transition={{ type: "spring", stiffness: 400, damping: 18 }}
                 className={`p-0.5 rounded-full transition-colors cursor-pointer ${
                   userVote === "down" ? "text-amber-600" : "text-muted-foreground hover:text-amber-600"
                 }`}
                 title="Downvote"
               >
                 <ArrowBigDown className={`w-4 h-4 ${userVote === "down" ? "fill-current" : ""}`} />
-              </button>
+              </motion.button>
             </div>
 
             {/* Comment Count */}
-            <button
+            <motion.button
               onClick={() => setCommentOpen(!commentOpen)}
+              whileTap={{ scale: 0.92 }}
+              transition={{ duration: 0.15 }}
               className="flex items-center gap-1.5 hover:text-[#2463D3] transition-colors cursor-pointer font-medium"
             >
               <MessageCircle className="w-4 h-4" />
               <span>{commentsList.length}</span>
-            </button>
+            </motion.button>
 
             {/* Share */}
-            <button
+            <motion.button
               onClick={() => onShare && onShare(post)}
+              whileTap={{ scale: 0.92 }}
+              transition={{ duration: 0.15 }}
               className="flex items-center gap-1.5 hover:text-[#2463D3] transition-colors cursor-pointer font-medium"
             >
               <Share2 className="w-4 h-4" />
               <span>Share</span>
-            </button>
+            </motion.button>
           </div>
 
           <div className="flex items-center gap-2">
-            <button
+            <motion.button
               onClick={() => setIsEditorOpen(true)}
+              whileTap={{ scale: 0.94 }}
+              transition={{ duration: 0.15 }}
               className="px-2.5 py-1 rounded-lg border border-[#E2E8F0] dark:border-border hover:border-[#2463D3] hover:text-[#2463D3] text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
             >
               <GitFork className="w-3.5 h-3.5 text-[#2463D3]" />
               <span className="hidden sm:inline">Remix</span>
-            </button>
+            </motion.button>
 
-            <button
+            <motion.button
               onClick={() => setIsSaved(!isSaved)}
+              whileTap={{ scale: 0.85 }}
+              transition={{ type: "spring", stiffness: 400, damping: 18 }}
               className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                 isSaved
                   ? "text-[#2463D3]"
@@ -320,13 +345,21 @@ export const MemeCard: React.FC<MemeCardProps> = ({
               title={isSaved ? "Saved to collections" : "Save"}
             >
               <Bookmark className={`w-4 h-4 ${isSaved ? "fill-[#2463D3]" : ""}`} />
-            </button>
+            </motion.button>
           </div>
         </div>
 
         {/* Comments Thread */}
-        {commentOpen && (
-          <div className="p-4 sm:p-5 border-t border-[#E2E8F0] dark:border-border bg-[#F8FAFC] dark:bg-secondary/20 space-y-3">
+        <AnimatePresence>
+          {commentOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.22, ease: [0.2, 0, 0, 1] }}
+              className="overflow-hidden"
+            >
+              <div className="p-4 sm:p-5 border-t border-[#E2E8F0] dark:border-border bg-[#F8FAFC] dark:bg-secondary/20 space-y-3">
             <form onSubmit={handleTextCommentSubmit} className="flex gap-2">
               <input
                 type="text"
@@ -370,9 +403,11 @@ export const MemeCard: React.FC<MemeCardProps> = ({
                   </div>
                 ))
               )}
+              </div>
             </div>
-          </div>
-        )}
+          </motion.div>
+          )}
+        </AnimatePresence>
       </article>
 
       {/* Editor Modal for Remixing */}

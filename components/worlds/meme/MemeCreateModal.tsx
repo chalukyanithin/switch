@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { X, Sparkles, Image as ImageIcon, Type, Download, Check, RefreshCw } from "lucide-react";
 import { SwitchPost } from "@/lib/data/worldsData";
 import { MEME_TEMPLATES_LIST, MemeTemplateItem } from "./MemeTemplatesSection";
+import { AnimatedBackdrop, AnimatedModal } from "@/components/motion";
 
 interface MemeCreateModalProps {
   isOpen: boolean;
@@ -213,8 +214,9 @@ export const MemeCreateModal: React.FC<MemeCreateModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-xs animate-in fade-in overflow-y-auto">
-      <div className="w-full max-w-3xl rounded-2xl bg-white dark:bg-card border border-[#E2E8F0] dark:border-border shadow-2xl overflow-hidden my-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+      <AnimatedBackdrop onClick={onClose} />
+      <AnimatedModal className="relative z-10 w-full max-w-3xl rounded-2xl bg-white dark:bg-card border border-[#E2E8F0] dark:border-border shadow-2xl overflow-hidden my-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-[#E2E8F0] dark:border-border">
           <div className="flex items-center gap-2">
@@ -428,7 +430,7 @@ export const MemeCreateModal: React.FC<MemeCreateModalProps> = ({
             </button>
           </div>
         </div>
-      </div>
+      </AnimatedModal>
     </div>
   );
 };

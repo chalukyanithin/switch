@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/components/AuthProvider";
 import {
   MessageSquare,
   HelpCircle,
@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { createThought } from "@/lib/actions/thought.actions";
 import { TECH_TOPICS } from "../TechComposer";
+import { AnimatedBackdrop, AnimatedModal } from "@/components/motion";
 
 export type ContributionType = "discussion" | "question" | "project" | "explanation";
 
@@ -162,8 +163,9 @@ export const TechContributionModal: React.FC<TechContributionModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 animate-in fade-in duration-150 world-tech">
-      <div className="bg-white dark:bg-card w-full max-w-2xl rounded-lg border border-[#E2E8F0] dark:border-border shadow-xl overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 world-tech">
+      <AnimatedBackdrop onClick={onClose} />
+      <AnimatedModal className="relative z-10 bg-white dark:bg-card w-full max-w-2xl rounded-2xl border border-[#E2E8F0] dark:border-border shadow-xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Modal Header */}
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#E2E8F0] dark:border-border bg-white dark:bg-card">
           <div className="flex items-center gap-2">
@@ -528,7 +530,7 @@ export const TechContributionModal: React.FC<TechContributionModalProps> = ({
             </form>
           )}
         </div>
-      </div>
+      </AnimatedModal>
     </div>
   );
 };

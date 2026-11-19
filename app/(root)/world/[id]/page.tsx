@@ -38,7 +38,7 @@ import {
   Search,
   User,
 } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/components/AuthProvider";
 import { INITIAL_SWITCH_POSTS, SwitchPost } from "@/lib/data/worldsData";
 import Card from "@/components/ui/Card";
 import MemeEditorModal from "@/components/worlds/MemeEditorModal";
@@ -48,7 +48,7 @@ import MemeTemplatesSection, { MemeTemplateItem } from "@/components/worlds/meme
 import MemeCreateModal from "@/components/worlds/meme/MemeCreateModal";
 import MemeRightBar from "@/components/worlds/meme/MemeRightBar";
 import AudioCommentRecorder from "@/components/ui/AudioCommentRecorder";
-import { addAudioComment } from "@/lib/actions/thought.actions";
+import { addAudioComment, fetchThoughts } from "@/lib/actions/thought.actions";
 import TechComposer, { TECH_TOPICS } from "@/components/worlds/TechComposer";
 import TechQuizSection from "@/components/worlds/tech/TechQuizSection";
 import TechDiscussionsSection from "@/components/worlds/tech/TechDiscussionsSection";
@@ -154,6 +154,14 @@ function TechnologyWorldView() {
   const [allTechPosts, setAllTechPosts] = useState<SwitchPost[]>(() =>
     INITIAL_SWITCH_POSTS.filter((p) => p.world.toLowerCase() === "technology")
   );
+
+  useEffect(() => {
+    fetchThoughts("Technology").then((posts) => {
+      if (posts && posts.length > 0) {
+        setAllTechPosts(posts);
+      }
+    });
+  }, []);
 
   // Sync section & subtabs with searchParams
   useEffect(() => {
@@ -682,6 +690,14 @@ function MemeWorldView() {
   );
 
   useEffect(() => {
+    fetchThoughts("Meme").then((posts) => {
+      if (posts && posts.length > 0) {
+        setAllMemePosts(posts);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
     if (tabParam) {
       if (tabParam === "trending") {
         setActiveTab("home");
@@ -882,13 +898,33 @@ function CricketWorldView() {
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
   const [recordSuccess, setRecordSuccess] = useState(false);
 
-  const posts = INITIAL_SWITCH_POSTS.filter(
-    (p) => p.world.toLowerCase() === "cricket"
+  const [cricketPosts, setCricketPosts] = useState<SwitchPost[]>(() =>
+    INITIAL_SWITCH_POSTS.filter((p) => p.world.toLowerCase() === "cricket")
   );
+
+  useEffect(() => {
+    fetchThoughts("Cricket").then((fetched) => {
+      if (fetched && fetched.length > 0) {
+        setCricketPosts(fetched);
+      }
+    });
+  }, []);
 
   const handleAudioReady = async (audioData: any) => {
     try {
-      await addAudioComment(posts[0]._id, "current-user", audioData, "You");
+      if (cricketPosts.length > 0) {
+        const newComm = await addAudioComment(cricketPosts[0]._id, "current-user", audioData, "You");
+        setCricketPosts((prev) => {
+          const next = [...prev];
+          if (next[0]) {
+            next[0] = {
+              ...next[0],
+              comments: [...(next[0].comments || []), newComm as any],
+            };
+          }
+          return next;
+        });
+      }
       setShowVoiceRecorder(false);
       setRecordSuccess(true);
       setTimeout(() => setRecordSuccess(false), 3000);
@@ -1003,7 +1039,7 @@ function CricketWorldView() {
 
       {/* Cricket Match Stream */}
       <div className="space-y-4">
-        {posts.map((post) => (
+        {cricketPosts.map((post) => (
           <Card key={post._id} thought={post} />
         ))}
       </div>

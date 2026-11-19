@@ -2,6 +2,63 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* =========================================================
+   SWITCH MOTION SYSTEM — Global tokens & keyframes
+   All durations/easings come from lib/motion.ts (JS).
+   These CSS vars keep legacy inline styles consistent.
+========================================================= */
+:root {
+  --motion-fast:   150ms;
+  --motion-normal: 220ms;
+  --motion-smooth: 300ms;
+  --motion-slow:   400ms;
+
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out:      cubic-bezier(0, 0, 0.2, 1);
+  --ease-in:       cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* Shimmer for skeleton loading states */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+/* Skeleton base pattern — applied via Skeleton.tsx component */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 25%,
+    rgba(255,255,255,0.35) 50%,
+    transparent 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite;
+}
+
+.dark .skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 25%,
+    rgba(255,255,255,0.05) 50%,
+    transparent 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite;
+}
+
+/* Respect prefers-reduced-motion for all CSS-driven animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 @utility no-scrollbar {
@@ -45,10 +102,11 @@
     0 10px 24px rgba(24, 45, 80, 0.08),
     0 20px 40px rgba(24, 45, 80, 0.08);
   transition:
-    transform 180ms ease,
-    box-shadow 180ms ease,
-    border-color 180ms ease;
+    transform var(--motion-normal) var(--ease-standard),
+    box-shadow var(--motion-normal) var(--ease-standard),
+    border-color var(--motion-normal) var(--ease-standard);
   overflow: hidden;
+  will-change: transform;
 
   &:hover {
     transform: translateY(-3px);
@@ -56,6 +114,10 @@
       0 6px 16px rgba(24, 45, 80, 0.06),
       0 14px 30px rgba(24, 45, 80, 0.11),
       0 26px 52px rgba(24, 45, 80, 0.12);
+  }
+
+  &:active {
+    transform: translateY(-1px);
   }
 }
 
@@ -68,10 +130,11 @@
     0 10px 24px rgba(24, 45, 80, 0.08),
     0 20px 40px rgba(24, 45, 80, 0.08);
   transition:
-    transform 180ms ease,
-    box-shadow 180ms ease,
-    border-color 180ms ease;
+    transform var(--motion-normal) var(--ease-standard),
+    box-shadow var(--motion-normal) var(--ease-standard),
+    border-color var(--motion-normal) var(--ease-standard);
   overflow: hidden;
+  will-change: transform;
 
   &:hover {
     transform: translateY(-3px);
@@ -80,21 +143,36 @@
       0 14px 30px rgba(24, 45, 80, 0.11),
       0 26px 52px rgba(24, 45, 80, 0.12);
   }
+
+  &:active {
+    transform: translateY(-1px);
+  }
 }
 
 .dark .switch-card {
-  background: #111827;
-  border-color: #1f2937;
+  background: #192538;
+  border: 1px solid #2B3B52;
+  border-radius: 24px;
   box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.3),
-    0 10px 24px rgba(0, 0, 0, 0.45),
-    0 20px 44px rgba(0, 0, 0, 0.35);
+    0 8px 20px rgba(0, 0, 0, 0.22),
+    0 18px 36px rgba(0, 0, 0, 0.16);
+  transition:
+    transform var(--motion-normal) var(--ease-standard),
+    box-shadow var(--motion-normal) var(--ease-standard),
+    border-color var(--motion-normal) var(--ease-standard);
+  overflow: hidden;
+  will-change: transform;
 
   &:hover {
+    transform: translateY(-2px);
+    border-color: #405575;
     box-shadow:
-      0 6px 16px rgba(0, 0, 0, 0.35),
-      0 14px 30px rgba(0, 0, 0, 0.55),
-      0 26px 52px rgba(0, 0, 0, 0.45);
+      0 12px 24px rgba(0, 0, 0, 0.28),
+      0 22px 40px rgba(0, 0, 0, 0.20);
+  }
+
+  &:active {
+    transform: translateY(-1px);
   }
 }
 
@@ -107,10 +185,11 @@
     0 8px 18px rgba(24, 45, 80, 0.07),
     0 16px 32px rgba(24, 45, 80, 0.07);
   transition:
-    transform 180ms ease,
-    box-shadow 180ms ease,
-    border-color 180ms ease;
+    transform var(--motion-normal) var(--ease-standard),
+    box-shadow var(--motion-normal) var(--ease-standard),
+    border-color var(--motion-normal) var(--ease-standard);
   overflow: hidden;
+  will-change: transform;
 
   &:hover {
     transform: translateY(-2px);
@@ -118,6 +197,10 @@
       0 5px 12px rgba(24, 45, 80, 0.05),
       0 12px 24px rgba(24, 45, 80, 0.10),
       0 22px 42px rgba(24, 45, 80, 0.11);
+  }
+
+  &:active {
+    transform: translateY(-1px);
   }
 }
 
@@ -130,10 +213,11 @@
     0 8px 18px rgba(24, 45, 80, 0.07),
     0 16px 32px rgba(24, 45, 80, 0.07);
   transition:
-    transform 180ms ease,
-    box-shadow 180ms ease,
-    border-color 180ms ease;
+    transform var(--motion-normal) var(--ease-standard),
+    box-shadow var(--motion-normal) var(--ease-standard),
+    border-color var(--motion-normal) var(--ease-standard);
   overflow: hidden;
+  will-change: transform;
 
   &:hover {
     transform: translateY(-2px);
@@ -142,21 +226,36 @@
       0 12px 24px rgba(24, 45, 80, 0.10),
       0 22px 42px rgba(24, 45, 80, 0.11);
   }
+
+  &:active {
+    transform: translateY(-1px);
+  }
 }
 
 .dark .switch-card-sm {
-  background: #111827;
-  border-color: #1f2937;
+  background: #192538;
+  border: 1px solid #2B3B52;
+  border-radius: 20px;
   box-shadow:
-    0 3px 8px rgba(0, 0, 0, 0.25),
-    0 8px 20px rgba(0, 0, 0, 0.4),
-    0 16px 36px rgba(0, 0, 0, 0.3);
+    0 6px 16px rgba(0, 0, 0, 0.20),
+    0 14px 28px rgba(0, 0, 0, 0.14);
+  transition:
+    transform var(--motion-normal) var(--ease-standard),
+    box-shadow var(--motion-normal) var(--ease-standard),
+    border-color var(--motion-normal) var(--ease-standard);
+  overflow: hidden;
+  will-change: transform;
 
   &:hover {
+    transform: translateY(-2px);
+    border-color: #405575;
     box-shadow:
-      0 5px 12px rgba(0, 0, 0, 0.3),
-      0 12px 24px rgba(0, 0, 0, 0.5),
-      0 22px 44px rgba(0, 0, 0, 0.4);
+      0 10px 20px rgba(0, 0, 0, 0.26),
+      0 18px 34px rgba(0, 0, 0, 0.18);
+  }
+
+  &:active {
+    transform: translateY(-1px);
   }
 }
 
@@ -184,6 +283,7 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-text: var(--secondary-text);
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
@@ -225,6 +325,7 @@
   --primary-foreground: #ffffff;
   --secondary: #f8fafc;
   --secondary-foreground: #111827;
+  --secondary-text: #64748b;
   --muted: #f8fafc;
   --muted-foreground: #6b7280;
   --accent: #f0f5ff;
@@ -245,7 +346,7 @@
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #f8fafc;
   --sidebar-accent-foreground: #111827;
-  --sidebar-border: #e5e7eb;
+  --sidebar-border: #e5eaf2;
   --sidebar-ring: #1677ff;
 
   /* World Theme Specific Tokens (Inherited with restrained personality) */
@@ -255,39 +356,43 @@
 }
 
 .dark {
-  --background: #0b0f19;
-  --foreground: #f3f4f6;
-  --card: #111827;
-  --card-foreground: #f3f4f6;
-  --popover: #111827;
-  --popover-foreground: #f3f4f6;
+  /* Layered Dark Theme: #0D1421 page, #111B2B sidebar, #192538 cards, #1E2C41 secondary */
+  --background: #0D1421;
+  --foreground: #F1F5FB;
+  --card: #192538;
+  --card-foreground: #F1F5FB;
+  --popover: #192538;
+  --popover-foreground: #F1F5FB;
   --primary: #1677ff;
   --primary-foreground: #ffffff;
-  --secondary: #1f2937;
-  --secondary-foreground: #f3f4f6;
-  --muted: #1f2937;
-  --muted-foreground: #9ca3af;
-  --accent: #1e293b;
-  --accent-foreground: #60a5fa;
+  --secondary: #1E2C41;
+  --secondary-foreground: #F1F5FB;
+  --secondary-text: #A2B0C4;
+  --muted: #1E2C41;
+  --muted-foreground: #8493A9;
+  --accent: #1E2C41;
+  --accent-foreground: #1677ff;
   --destructive: #ef4444;
   --warning: #f59e0b;
   --success: #22c55e;
-  --border: #1f2937;
-  --input: #1f2937;
+  --border: #2B3B52;
+  --input: #1E2C41;
   --ring: #1677ff;
 
-  --sidebar: #111827;
-  --sidebar-foreground: #f3f4f6;
+  --sidebar: #111B2B;
+  --sidebar-foreground: #F1F5FB;
   --sidebar-primary: #1677ff;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1f2937;
-  --sidebar-accent-foreground: #f3f4f6;
-  --sidebar-border: #1f2937;
+  --sidebar-accent: #1E2C41;
+  --sidebar-accent-foreground: #F1F5FB;
+  --sidebar-border: #2B3B52;
   --sidebar-ring: #1677ff;
 
   --world-accent: #1677ff;
-  --world-accent-subtle: #1e293b;
+  --world-accent-subtle: #1E2C41;
   --world-accent-foreground: #ffffff;
+
+  color-scheme: dark;
 }
 
 /* =========================================================
@@ -309,13 +414,13 @@
 
 .dark .world-tech,
 .world-tech.dark {
-  --primary: #3b82f6;
-  --world-accent: #3b82f6;
-  --world-accent-subtle: #1e293b;
+  --primary: #2463D3;
+  --world-accent: #2463D3;
+  --world-accent-subtle: #1E2C41;
   --world-accent-foreground: #ffffff;
-  --world-navy: #f3f4f6;
-  --world-bg: #0b0f19;
-  --world-border: #1e293b;
+  --world-navy: #F1F5FB;
+  --world-bg: #0D1421;
+  --world-border: #2B3B52;
 }
 
 /* 2. Cricket World: Professional cricket journalism & editorial scoreboards */
@@ -328,7 +433,7 @@
 .dark .world-cricket,
 .world-cricket.dark {
   --world-accent: #10b981;
-  --world-accent-subtle: #064e3b;
+  --world-accent-subtle: #1E2C41;
   --world-accent-foreground: #ffffff;
 }
 
@@ -342,7 +447,7 @@
 .dark .world-meme,
 .world-meme.dark {
   --world-accent: #f59e0b;
-  --world-accent-subtle: #451a03;
+  --world-accent-subtle: #1E2C41;
   --world-accent-foreground: #ffffff;
 }
 
@@ -354,4 +459,68 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Accessible contrast for headers and dark mode text tokens */
+  .dark .text-\[\#17243A\] {
+    color: var(--foreground);
+  }
+
+  /* ── Global button interaction polish ─────────────────────────── */
+  button,
+  [role="button"] {
+    transition:
+      background-color var(--motion-fast) var(--ease-standard),
+      color            var(--motion-fast) var(--ease-standard),
+      opacity          var(--motion-fast) var(--ease-standard),
+      border-color     var(--motion-fast) var(--ease-standard);
+  }
+
+  /* Keyboard focus ring — consistent across all interactive elements */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Links */
+  a {
+    transition: color var(--motion-fast) var(--ease-standard);
+  }
+
+  /* Nav links & sidebar items */
+  nav a,
+  aside a {
+    transition:
+      background-color var(--motion-normal) var(--ease-standard),
+      color            var(--motion-normal) var(--ease-standard),
+      border-color     var(--motion-normal) var(--ease-standard);
+  }
+
+  /* Input / textarea border animation */
+  input,
+  textarea,
+  select {
+    transition:
+      border-color var(--motion-fast) var(--ease-standard),
+      box-shadow   var(--motion-fast) var(--ease-standard);
+  }
 }
+
+/* =========================================================
+   CAPACITOR ANDROID & MOBILE OPTIMIZATIONS
+   Safe areas, viewport clipping, and touch responsiveness
+   ========================================================= */
+html, body {
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.safe-area-top {
+  padding-top: max(0px, env(safe-area-inset-top));
+}
+
+.safe-area-bottom {
+  padding-bottom: max(0px, env(safe-area-inset-bottom));
+}
+

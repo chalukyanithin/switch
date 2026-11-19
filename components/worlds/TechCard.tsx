@@ -26,6 +26,7 @@ import { SwitchPost } from "@/lib/data/worldsData";
 import AudioCommentPlayer from "../ui/AudioCommentPlayer";
 import AudioCommentRecorder from "../ui/AudioCommentRecorder";
 import { addComment, addAudioComment } from "@/lib/actions/thought.actions";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface TechCardProps {
   post: SwitchPost;
@@ -488,47 +489,63 @@ export const TechCard: React.FC<TechCardProps> = ({
       {/* Engagement Actions matching screenshot */}
       <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-t border-[#E2E8F0] dark:border-border bg-white dark:bg-card text-muted-foreground text-xs sm:text-sm">
         <div className="flex items-center gap-6">
-          <button
+          <motion.button
             onClick={handleLikeClick}
+            whileTap={{ scale: 0.85 }}
+            transition={{ type: "spring", stiffness: 400, damping: 18 }}
             className={`flex items-center gap-1.5 transition-colors cursor-pointer ${
               isLiked ? "text-[#2463D3] font-semibold" : "hover:text-[#2463D3]"
             }`}
           >
-            <Heart className={`w-4 h-4 ${isLiked ? "fill-[#2463D3] text-[#2463D3]" : ""}`} />
+            <Heart className={`w-4 h-4 transition-all duration-150 ${isLiked ? "fill-[#2463D3] text-[#2463D3] scale-110" : ""}`} />
             <span>{likeCount}</span>
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
             onClick={() => setCommentOpen(!commentOpen)}
+            whileTap={{ scale: 0.92 }}
+            transition={{ duration: 0.15 }}
             className="flex items-center gap-1.5 hover:text-[#2463D3] transition-colors cursor-pointer"
           >
             <MessageCircle className="w-4 h-4" />
             <span>{commentsList.length} comments</span>
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
             onClick={handleSaveClick}
+            whileTap={{ scale: 0.85 }}
+            transition={{ type: "spring", stiffness: 400, damping: 18 }}
             className={`flex items-center gap-1.5 transition-colors cursor-pointer ${
               isSaved ? "text-[#2463D3] font-semibold" : "hover:text-[#2463D3]"
             }`}
           >
-            <Bookmark className={`w-4 h-4 ${isSaved ? "fill-[#2463D3] text-[#2463D3]" : ""}`} />
+            <Bookmark className={`w-4 h-4 transition-all duration-150 ${isSaved ? "fill-[#2463D3] text-[#2463D3]" : ""}`} />
             <span>{isSaved ? "Saved" : "Save"}</span>
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
             onClick={() => onShare && onShare(post)}
+            whileTap={{ scale: 0.92 }}
+            transition={{ duration: 0.15 }}
             className="flex items-center gap-1.5 hover:text-[#2463D3] transition-colors cursor-pointer"
           >
             <Share2 className="w-4 h-4" />
             <span>Share</span>
-          </button>
+          </motion.button>
         </div>
       </div>
 
       {/* Comments Thread with Audio Comment Support */}
-      {commentOpen && (
-        <div className="p-4 sm:p-5 border-t border-border bg-secondary/40 space-y-4">
+      <AnimatePresence>
+        {commentOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.22, ease: [0.2, 0, 0, 1] }}
+            className="overflow-hidden"
+          >
+            <div className="p-4 sm:p-5 border-t border-border bg-secondary/40 space-y-4">
           <div className="space-y-3 max-h-56 overflow-y-auto pr-1">
             {commentsList.length === 0 ? (
               <p className="text-xs text-muted-foreground text-center py-2">
@@ -599,8 +616,10 @@ export const TechCard: React.FC<TechCardProps> = ({
             </form>
           )}
         </div>
-      )}
-    </article>
+      </motion.div>
+    )}
+  </AnimatePresence>
+</article>
   );
 };
 

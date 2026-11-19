@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/components/AuthProvider";
 import {
   Code2,
   Image as ImageIcon,
@@ -97,8 +97,8 @@ export const TechComposer: React.FC<TechComposerProps> = ({
       prev.includes(topic)
         ? prev.filter((t) => t !== topic)
         : prev.length < 3
-        ? [...prev, topic]
-        : prev
+          ? [...prev, topic]
+          : prev
     );
   };
 
@@ -171,7 +171,7 @@ export const TechComposer: React.FC<TechComposerProps> = ({
   const codeLines = codeContent.split("\n");
 
   return (
-    <div className="world-tech w-full bg-card rounded-lg border border-border overflow-hidden text-foreground animate-in fade-in">
+    <div className="world-tech switch-card w-full text-foreground animate-in fade-in">
       {/* 1. Header: Profile, Destination & Scope */}
       <div className="p-4 sm:p-5 border-b border-border bg-card flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -238,11 +238,10 @@ export const TechComposer: React.FC<TechComposerProps> = ({
                   key={topic}
                   type="button"
                   onClick={() => toggleTopic(topic)}
-                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer border ${
-                    isSelected
+                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer border ${isSelected
                       ? "bg-primary text-primary-foreground border-primary"
                       : "bg-secondary text-muted-foreground hover:text-foreground border-border hover:border-primary/40"
-                  }`}
+                    }`}
                 >
                   #{topic}
                 </button>
@@ -502,11 +501,10 @@ export const TechComposer: React.FC<TechComposerProps> = ({
           <button
             type="button"
             onClick={() => setShowImageInput(!showImageInput)}
-            className={`px-2.5 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
-              showImageInput
+            className={`px-2.5 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${showImageInput
                 ? "bg-primary text-primary-foreground"
                 : "bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80 border border-border"
-            }`}
+              }`}
           >
             <ImageIcon className="w-3.5 h-3.5 text-blue-500" />
             <span>Photo</span>
@@ -516,11 +514,10 @@ export const TechComposer: React.FC<TechComposerProps> = ({
           <button
             type="button"
             onClick={() => setShowVideoInput(!showVideoInput)}
-            className={`px-2.5 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
-              showVideoInput
+            className={`px-2.5 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${showVideoInput
                 ? "bg-primary text-primary-foreground"
                 : "bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80 border border-border"
-            }`}
+              }`}
           >
             <Video className="w-3.5 h-3.5 text-purple-500" />
             <span>Video</span>
@@ -530,11 +527,10 @@ export const TechComposer: React.FC<TechComposerProps> = ({
           <button
             type="button"
             onClick={() => setShowCodeSnippet(!showCodeSnippet)}
-            className={`px-2.5 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
-              showCodeSnippet
+            className={`px-2.5 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${showCodeSnippet
                 ? "bg-primary text-primary-foreground"
                 : "bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80 border border-border"
-            }`}
+              }`}
           >
             <Code2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
             <span>Code snippet</span>

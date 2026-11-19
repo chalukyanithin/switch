@@ -106,6 +106,10 @@ export interface SwitchPost {
   tech?: TechMetadata;
   meme?: MemeMetadata;
   cricket?: CricketMetadata;
+  cooking?: any;
+  art?: any;
+  music?: any;
+  fitness?: any;
 }
 
 export const INITIAL_SWITCH_POSTS: SwitchPost[] = [

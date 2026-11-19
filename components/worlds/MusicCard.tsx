@@ -209,7 +209,7 @@ export const MusicCard: React.FC<MusicCardProps> = ({
         {music?.instruments && music.instruments.length > 0 && (
           <div className="flex flex-wrap gap-1.5 pt-1">
             <span className="text-xs text-muted-foreground py-0.5 mr-1 font-medium">Gear:</span>
-            {music.instruments.map((item, i) => (
+            {music.instruments.map((item: any, i: number) => (
               <span
                 key={i}
                 className="px-2.5 py-0.5 rounded-full text-xs bg-secondary text-foreground border border-border"

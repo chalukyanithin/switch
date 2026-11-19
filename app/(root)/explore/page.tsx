@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Compass,
@@ -12,7 +12,8 @@ import {
   Radio,
   Layers,
 } from "lucide-react";
-import { INITIAL_SWITCH_POSTS } from "@/lib/data/worldsData";
+import { INITIAL_SWITCH_POSTS, SwitchPost } from "@/lib/data/worldsData";
+import { fetchThoughts } from "@/lib/actions/thought.actions";
 import Card from "@/components/ui/Card";
 
 const WORLD_PORTALS = [
@@ -58,6 +59,15 @@ const WORLD_PORTALS = [
 ];
 
 export default function ExplorePage() {
+  const [thoughts, setThoughts] = useState<SwitchPost[]>(INITIAL_SWITCH_POSTS);
+
+  useEffect(() => {
+    fetchThoughts().then((res) => {
+      if (res && res.length > 0) {
+        setThoughts(res);
+      }
+    });
+  }, []);
   return (
     <div className="w-full space-y-8 pb-12">
       {/* Header */}
@@ -160,12 +170,12 @@ export default function ExplorePage() {
             </h2>
           </div>
           <span className="text-xs text-muted-foreground font-medium">
-            {INITIAL_SWITCH_POSTS.length} posts
+            {thoughts.length} posts
           </span>
         </div>
 
         <div className="space-y-5">
-          {INITIAL_SWITCH_POSTS.map((post) => (
+          {thoughts.map((post) => (
             <Card key={post._id} thought={post} />
           ))}
         </div>

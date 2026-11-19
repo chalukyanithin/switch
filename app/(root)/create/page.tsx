@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/components/AuthProvider";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Code2, Sparkles, Trophy, Plus, X, Send, Loader2, GitFork
